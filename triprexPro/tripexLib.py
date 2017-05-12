@@ -4,45 +4,49 @@ from netCDF4 import Dataset
 
 def getEmptyMatrix(rows, cols):
 
-    emptyMatrix = np.ones((rows, cols))
-    emptyMatrix[:] = np.nan
-    emptyMatrix = np.ma.masked_invalid(emptyMatrix)
+   emptyMatrix = np.ones((rows, cols))
+   emptyMatrix[:] = np.nan
+   emptyMatrix = np.ma.masked_invalid(emptyMatrix)
     
-    return emptyMatrix
+   return emptyMatrix
 
+def getEpochDate():
+
+    
 
 def getIndexList(dataTable, reference, tolerance):
     
-    indexList = []
-    for value in reference:
+   indexList = []
+   for value in reference:
     
-        index = getNearestIndex(dataTable, value, tolerance)
-        indexList.append(index)
+      index = getNearestIndex(dataTable, value, tolerance)
+      indexList.append(index)
 
-    return indexList
+   return indexList
 
 
 def getNearestIndex(timeRef, timeStamp, tolerance):
 
-    try:
-        index = timeRef.index.get_loc(timeStamp, method='nearest', tolerance=tolerance)
+   try:
+      index = timeRef.index.get_loc(timeStamp, method='nearest', 
+                                   tolerance=tolerance)
     
-    except:
-        index = np.nan
+   except:
+      index = np.nan
     
-    return index
+   return index
 
 
 def getResampledData(emptyMatrixData, variableData, indexList, usedIndex):
     
-    usedIndex = []
-    for i,index in enumerate(indexList):
+   usedIndex = []
+   for i,index in enumerate(indexList):
 
-        try:
-            emptyMatrixData[i] = variableData[int(index)]
-            usedIndex[i] = int(index)
+      try:
+         emptyMatrixData[i] = variableData[int(index)]
+         usedIndex[i] = int(index)
        
-        except:
-            pass
+      except:
+         pass
     
-    return emptyMatrixData, usedIndex
+   return emptyMatrixData, usedIndex
