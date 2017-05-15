@@ -10,7 +10,26 @@ def getEmptyMatrix(rows, cols):
     
    return emptyMatrix
 
-def getEpochDate():
+def getEpochTime(rootgrp, radar):
+
+   if radar == 'W':
+      long_name = getattr(rootgrp.variables['time'], 'long_name').split(' ')  
+      date = long_name[-2]
+      time = long_name[-1]
+            
+   elif radar == 'X':
+      long_name = getattr(rootgrp.variables['time'], 'long_name').split(' ')  
+      date = long_name[-2]
+      time = long_name[-1]
+
+   else:
+      long_name = getattr(rootgrp.variables['time'], 'long_name').split(' ')
+      date = long_name[-3]
+      time = long_name[-2]
+         
+   epoch = pd.to_datetime(' '.join([date, time]))
+    
+   return epoch
 
     
 

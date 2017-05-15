@@ -12,7 +12,10 @@ import tripexLib as trLib
 path = '/home/jdias/Projects/radarData'
 dateName = '20151124'
 prefix = 'joyrad94_joyce_compact_'
+
 variableName = 'Ze'
+#variableName = 'vm'
+
 radar = 'W'
 
 #Time Definitions
@@ -69,13 +72,10 @@ for radarFile in fileList:
    print radarFile
    rootgrp = Dataset(radarFile, 'r')
        
-   #it gets time and attributes
-   timesWAtt = rootgrp.variables['time']
-   epochDay, epochMonth, epochYear = getattr(timesWAtt, 'long_name').split(' ')[-2].split('.')
-   epochDay, epochMonth, epochYear = int(epochDay), int(epochMonth), int(epochYear)
-        
-   timesW = timesWAtt[:]
-   epoch = pd.datetime(epochYear, epochMonth, epochDay)
+   epoch = trLib.getEpochTime(rootgrp, radar)
+   timesW = rootgrp.variables['time'][:]
+
+   #timesW = timesWAtt[:]
    humamTimeW = epoch + pd.to_timedelta(timesW, unit='S')
     
    #it gets the range and corrects for the reference height
@@ -84,6 +84,7 @@ for radarFile in fileList:
    #it gets desireble variable 
    var = rootgrp.variables[variableName][:]
    var[var==-999.] = np.nan 
+   var = np.ma.masked_invalid(var)
     
    rootgrp.close()
     
