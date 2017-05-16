@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+import glob
 from netCDF4 import Dataset
 
 def getEmptyMatrix(rows, cols):
@@ -31,7 +32,35 @@ def getEpochTime(rootgrp, radar):
     
    return epoch
 
+   
+def getFileList(dataPath, date, beguinTime, radar):
+   
+   
+   beguinTime = str(beguinTime)
+   if radar == 'W':
+      prefix = 'joyrad94_joyce_compact_'
+      suffix = ('').join([beguinTime,'.nc'])
+      fileNameSearch = ('*').join([date, suffix])
+      fileNameSearch = ('').join([prefix, fileNameSearch])
+      fileNameSearch = ('/').join([dataPath, fileNameSearch])
     
+   elif radar == 'X':
+      suffix = 'kixpol.nc'
+      fileNameSearch = ('*').join([date, suffix])
+      fileNameSearch = ('/').join([dataPath, fileNameSearch])
+        
+   else:
+      suffix = 'mmclx.00'
+      fileNameSearch = ('*').join([beguinTime, suffix])
+      fileNameSearch = ('_').join([date,fileNameSearch])
+      fileNameSearch = ('/').join([dataPath, fileNameSearch])
+
+   fileList = glob.glob(fileNameSearch)
+   #fileList = fileList.sort()
+   #print fileNameSearch
+   return fileList
+
+ 
 
 def getIndexList(dataTable, reference, tolerance):
     

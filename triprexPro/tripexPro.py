@@ -10,19 +10,18 @@ import tripexLib as trLib
 
 #input File Definitions
 path = '/home/jdias/Projects/radarData'
-dateName = '20151124'
 prefix = 'joyrad94_joyce_compact_'
-
+#variableName = 'Ze' #X
 variableName = 'Ze'
-#variableName = 'vm'
-
+#variableName = 'vm'#W
+#radar = 'X'
 radar = 'W'
 
 #Time Definitions
 year = 2015
 month = 11
 day = 24
-
+dateName = str(year)+str(month)+str(day)
 beguinTimeRef = 17
 endTimeRef = beguinTimeRef + 1
 
@@ -41,7 +40,11 @@ endRangeRef = 12000
 rangeRef = np.arange(beguinRangeRef, endRangeRef, 30)
 usedIndexRange = np.ones((len(rangeRef)))*np.nan
 rangeTolerance = '17'
-rangeGateOffSet = -2
+
+#rangeGateOffSet = 0 #Ka
+rangeGateOffSet = -2 #W
+#rangeGateOffSet = -17.5 #X
+
 
 #output File Definitions
 outputPath = '/home/jdias/Projects/radarDataResampled'
@@ -62,8 +65,27 @@ varNameOutput = ('_').join([varFinalName, radar])
 
 
 #Files to process
-fileList = glob.glob(('/').join([path, prefix+dateName+str(beguinTimeRef)+'*.nc']))
-fileList.sort()
+fileList = trLib.getFileList(path, dateName,
+			    beguinTimeRef, radar)
+
+
+#fileList = glob.glob(('/').join([path, prefix+dateName+str(beguinTimeRef)+'*.nc']))
+#fileList.sort()
+
+#creat a function ------------------
+#listAux = []
+#for nameFile in fileList:
+#   rootgrp = Dataset(nameFile, 'r')
+#   elv = rootgrp.variables['elv'][:]
+#   if len(np.argwhere(elv !=90))==0:
+#     listAux.append(nameFile)
+#fileList = listAux
+#-----------------------------------
+
+#To Ka version----------------------
+#varResTimeEmpty = trLib.getEmptyMatrix(len(timeRef), len(ranges))
+#varResTimeRangeEmpty = trLib.getEmptyMatrix(len(rangeRef), len(timeRef))
+#-----------------------------------
 
 
 for radarFile in fileList:
@@ -71,7 +93,7 @@ for radarFile in fileList:
    #it opens the file 
    print radarFile
    rootgrp = Dataset(radarFile, 'r')
-       
+     
    epoch = trLib.getEpochTime(rootgrp, radar)
    timesW = rootgrp.variables['time'][:]
 
@@ -83,7 +105,14 @@ for radarFile in fileList:
    
    #it gets desireble variable 
    var = rootgrp.variables[variableName][:]
-   var[var==-999.] = np.nan 
+   #Ka version ------------
+   #if radar == 'Ka': 
+   #   var = np.log10(var)
+   #-----------------------
+   if radar == 'W':
+      var[var==-999.] = np.nan 
+   if radar == 'X':
+      var[var==-32] = np.nan
    var = np.ma.masked_invalid(var)
     
    rootgrp.close()
@@ -107,11 +136,11 @@ for radarFile in fileList:
                                                                   rangeIndexList, 
                                                                   usedIndexRange)
 
+   varResTimeRangeEmpty = varResTimeRangeFilled*1
 
 #Final resampled (Time and Range)
 varResTimeRangeFilled = np.ma.masked_invalid(varResTimeRangeFilled)
-
-
+#varResTimeRangeFilled = np.ma.masked_invalid(varAux)
 
 rootgrpOut = writeData.createNetCdf(outPutFilePath)
 time_ref = writeData.createTimeDimension(rootgrpOut, timeRefUnix)
