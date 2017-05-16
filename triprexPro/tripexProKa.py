@@ -1,4 +1,3 @@
-
 import glob
 import numpy as np
 import pandas as pd
@@ -10,18 +9,14 @@ import tripexLib as trLib
 
 #input File Definitions
 path = '/home/jdias/Projects/radarData'
-#prefix = 'joyrad94_joyce_compact_'
+prefix = 'joyrad94_joyce_compact_'
 
-#radar = 'X'
-radar = 'W'
+radar = 'Ka'
 
-#variableName = 'Ze' #X
-#variableName = 'vd' #X
-
-
-#variableName = 'Ze' #W
-#variableName = 'vm'#W
-#variableName = 'sigma'#W
+variableName = 'Zg'
+#variableName = 'VEL'
+#variableName = 'RMS'
+#variableName = 'LDR'
 
 #Time Definitions
 year = 2015
@@ -47,8 +42,8 @@ rangeRef = np.arange(beguinRangeRef, endRangeRef, 30)
 usedIndexRange = np.ones((len(rangeRef)))*np.nan
 rangeTolerance = '17'
 
-#rangeGateOffSet = 0 #Ka
-rangeGateOffSet = -2 #W
+rangeGateOffSet = 0 #Ka
+#rangeGateOffSet = -2 #W
 #rangeGateOffSet = -17.5 #X
 
 
@@ -57,14 +52,14 @@ outputPath = '/home/jdias/Projects/radarDataResampled'
 outPutFile = ('_').join(['tripex_3fr_L1_mam', dateName, str(beguinTimeRef)+'.nc'])
 outPutFilePath = ('/').join([outputPath, outPutFile])
 
-#output variable name
+#output variable  name
 if variableName == 'Zg':    
    varFinalName = 'Ze'
- 
-elif variableName == 'vm' or variableName == 'vd':
+    
+elif variableName == 'vm' or variableName == 'VEL':
    varFinalName = 'Vd'
 
-elif variableName == 'sigma':
+elif variableName == 'RMS':
    varFinalName = 'SW'
 
 else:
@@ -78,25 +73,25 @@ varNameOutput = ('_').join([varFinalName, radar])
 fileList = trLib.getFileList(path, dateName,
 			    beguinTimeRef, radar)
 
-
-#fileList = glob.glob(('/').join([path, prefix+dateName+str(beguinTimeRef)+'*.nc']))
-#fileList.sort()
-
 #creat a function ------------------
-#listAux = []
-#for nameFile in fileList:
-#   rootgrp = Dataset(nameFile, 'r')
-#   elv = rootgrp.variables['elv'][:]
-#   if len(np.argwhere(elv !=90))==0:
-#     listAux.append(nameFile)
-#fileList = listAux
+listAux = []
+for nameFile in fileList:
+   rootgrp = Dataset(nameFile, 'r')
+   elv = rootgrp.variables['elv'][:]
+   lenRange = len(rootgrp.variables['range'])
+   if len(np.argwhere(elv !=90))==0:
+      listAux.append(nameFile)
+   rootgrp.close()
 #-----------------------------------
 
-#To Ka version----------------------
-#varResTimeEmpty = trLib.getEmptyMatrix(len(timeRef), len(ranges))
-#varResTimeRangeEmpty = trLib.getEmptyMatrix(len(rangeRef), len(timeRef))
-#-----------------------------------
 
+varAux = np.zeros((len(timeRef), len(rangeRef)))
+varAux = varAux.transpose()#*-999.
+
+fileList = listAux
+
+varResTimeEmpty = trLib.getEmptyMatrix(len(timeRef), lenRange)
+varResTimeRangeEmpty = trLib.getEmptyMatrix(len(rangeRef), len(timeRef))
 
 for radarFile in fileList:
 
@@ -111,27 +106,29 @@ for radarFile in fileList:
    humamTimeW = epoch + pd.to_timedelta(timesW, unit='S')
     
    #it gets the range and corrects for the reference height
-   ranges =rootgrp.variables['range'][:] + rangeGateOffSet  
-   
+   ranges =rootgrp.variables['range'][:] + rangeGateOffSet
+   elv = rootgrp.variables['elv'][:]
+
+   varResTimeRangeEmpty = trLib.getEmptyMatrix(len(rangeRef), len(timeRef))
+
    #it gets desireble variable 
    var = rootgrp.variables[variableName][:]
-   #Ka version ------------
-   #if radar == 'Ka': 
-   #   var = np.log10(var)
-   #-----------------------
-   if radar == 'W':
-      var[var==-999.] = np.nan 
-   if radar == 'X':
-      var[var==-32] = np.nan
+
+   if varFinalName == 'Ze':
+      var = 10*np.log10(var)   
+   else:
+      pass
+
    var = np.ma.masked_invalid(var)
-    
+   np.ma.set_fill_value(var, np.nan)
+
    rootgrp.close()
     
    ##Nearest in time
    varData = pd.DataFrame(index=humamTimeW, columns=ranges, data=var).drop_duplicates()
  
    timeIndexList = trLib.getIndexList(varData, timeRef, timeTolerance)
-   varResTimeEmpty = trLib.getEmptyMatrix(len(timeRef), len(ranges))
+   #varResTimeEmpty = trLib.getEmptyMatrix(len(timeRef), len(ranges))
    varResTimeFilled, usedIndexTime = trLib.getResampledData(varResTimeEmpty, var,
                                                             timeIndexList, usedIndexTime)
     
@@ -140,17 +137,19 @@ for radarFile in fileList:
    rangeRefTable = varData.transpose()
 
    rangeIndexList = trLib.getIndexList(rangeRefTable, rangeRef, rangeTolerance)
-   varResTimeRangeEmpty = trLib.getEmptyMatrix(len(rangeRef), len(timeRef))
+   #varResTimeRangeEmpty = trLib.getEmptyMatrix(len(rangeRef), len(timeRef))
    varResTimeRangeFilled, usedIndexRange = trLib.getResampledData(varResTimeRangeEmpty,
                                                                   varResTimeFilled, 
                                                                   rangeIndexList, 
                                                                   usedIndexRange)
-
+    
    varResTimeRangeEmpty = varResTimeRangeFilled*1
-
+   #test = varResTimeRangeFilled
+  
 #Final resampled (Time and Range)
 varResTimeRangeFilled = np.ma.masked_invalid(varResTimeRangeFilled)
 
+#To write the data
 rootgrpOut = writeData.createNetCdf(outPutFilePath)
 time_ref = writeData.createTimeDimension(rootgrpOut, timeRefUnix)
 range_ref = writeData.createRangeDimension(rootgrpOut, rangeRef)
@@ -159,3 +158,9 @@ var_resampled = writeData.createVariable(rootgrpOut, varResTimeRangeFilled.trans
 rootgrpOut.close()
 
 print 'Done %s'%(varNameOutput)
+
+
+
+
+
+

@@ -37,8 +37,17 @@ def variableAttribute(variable, varName, radar):
       
       long_name = radar+' band Mean Doppler velocity'
       units = 'm/s'
-     
 
+   if varName == 'SW':
+      
+      long_name = radar+' band Peak Width'
+      units = 'm/s'
+ 
+   if varName == 'LDR':
+      
+      long_name = radar+' band Linear De-Polarization Ratio'
+      units = 'm/s'
+     
    variable.long_name = long_name
    variable.units = units
 
