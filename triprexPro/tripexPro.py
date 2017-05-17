@@ -21,7 +21,7 @@ radar = 'W'
 
 #variableName = 'Ze' #W
 #variableName = 'vm'#W
-#variableName = 'sigma'#W
+variableName = 'sigma'#W
 
 #Time Definitions
 year = 2015
@@ -112,7 +112,7 @@ for radarFile in fileList:
     
    #it gets the range and corrects for the reference height
    ranges =rootgrp.variables['range'][:] + rangeGateOffSet  
-   
+    
    #it gets desireble variable 
    var = rootgrp.variables[variableName][:]
    #Ka version ------------
@@ -121,16 +121,19 @@ for radarFile in fileList:
    #-----------------------
    if radar == 'W':
       var[var==-999.] = np.nan 
-   if radar == 'X':
+   if radar == 'X' and varFinalName == 'Ze':
       var[var==-32] = np.nan
    var = np.ma.masked_invalid(var)
     
    rootgrp.close()
     
    ##Nearest in time
-   varData = pd.DataFrame(index=humamTimeW, columns=ranges, data=var).drop_duplicates()
- 
+   varData = pd.DataFrame(index=humamTimeW, columns=ranges, data=var)#.drop_duplicates()
+   varData['times'] = timesW
+   varData = varData.drop_duplicates(subset=['times'])
+
    timeIndexList = trLib.getIndexList(varData, timeRef, timeTolerance)
+
    varResTimeEmpty = trLib.getEmptyMatrix(len(timeRef), len(ranges))
    varResTimeFilled, usedIndexTime = trLib.getResampledData(varResTimeEmpty, var,
                                                             timeIndexList, usedIndexTime)
@@ -146,7 +149,7 @@ for radarFile in fileList:
                                                                   rangeIndexList, 
                                                                   usedIndexRange)
 
-   varResTimeRangeEmpty = varResTimeRangeFilled*1
+   #varResTimeRangeEmpty = varResTimeRangeFilled*1
 
 #Final resampled (Time and Range)
 varResTimeRangeFilled = np.ma.masked_invalid(varResTimeRangeFilled)

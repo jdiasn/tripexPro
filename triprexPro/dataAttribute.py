@@ -3,7 +3,7 @@ def globalAttributes(rootgrpOut):
    rootgrpOut.Experiment = 'TRIPEX, Forschungszentrum Juelich'
    rootgrpOut.Instrument = 'Ka Band Cloud Radar MIRA-36, METEK GmbH www.metek.de'
    rootgrpOut.Data = 'Produced by Jose Dias, jdiasnet@uni-koeln.de'
-   rootgrpOut.Routines = 'resampleKa.py'
+   rootgrpOut.Routines = 'tripexPro*.py'
 
    return rootgrpOut
 

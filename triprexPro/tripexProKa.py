@@ -13,10 +13,10 @@ prefix = 'joyrad94_joyce_compact_'
 
 radar = 'Ka'
 
-variableName = 'Zg'
+#variableName = 'Zg'
 #variableName = 'VEL'
 #variableName = 'RMS'
-#variableName = 'LDR'
+variableName = 'LDR'
 
 #Time Definitions
 year = 2015
