@@ -12,16 +12,16 @@ import tripexLib as trLib
 path = '/home/jdias/Projects/radarData'
 #prefix = 'joyrad94_joyce_compact_'
 
-#radar = 'X'
-radar = 'W'
+radar = 'X'
+#radar = 'W'
 
 #variableName = 'Ze' #X
-#variableName = 'vd' #X
+variableName = 'vd' #X
 
 
 #variableName = 'Ze' #W
 #variableName = 'vm'#W
-variableName = 'sigma'#W
+#variableName = 'sigma'#W
 
 #Time Definitions
 year = 2015
@@ -48,8 +48,8 @@ usedIndexRange = np.ones((len(rangeRef)))*np.nan
 rangeTolerance = '17'
 
 #rangeGateOffSet = 0 #Ka
-rangeGateOffSet = -2 #W
-#rangeGateOffSet = -17.5 #X
+#rangeGateOffSet = -2 #W
+rangeGateOffSet = -17.5 #X
 
 
 #output File Definitions
