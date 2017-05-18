@@ -125,7 +125,10 @@ for radarFile in fileList:
    rootgrp.close()
     
    ##Nearest in time
-   varData = pd.DataFrame(index=humamTimeW, columns=ranges, data=var).drop_duplicates()
+   varData = pd.DataFrame(index=humamTimeW, columns=ranges, data=var)
+   varData['times'] = timesW
+   varData = varData.drop_duplicates(subset=['times'])
+
  
    timeIndexList = trLib.getIndexList(varData, timeRef, timeTolerance)
    #varResTimeEmpty = trLib.getEmptyMatrix(len(timeRef), len(ranges))
