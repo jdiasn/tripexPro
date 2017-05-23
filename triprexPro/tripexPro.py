@@ -48,13 +48,13 @@ usedIndexRange = np.ones((len(rangeRef)))*np.nan
 rangeTolerance = '17'
 
 #rangeGateOffSet = 0 #Ka
-#rangeGateOffSet = -2 #W
-rangeGateOffSet = -17.5 #X
+rangeGateOffSet = -2 #W
+#rangeGateOffSet = -17.5 #X
 
 
 #output File Definitions
 outputPath = '/home/jdias/Projects/radarDataResampled'
-outPutFile = ('_').join(['tripex_3fr_L1_mam', dateName, str(beguinTimeRef)+'.nc'])
+outPutFile = ('_').join(['tripex_3fr_L1_mom', dateName, str(beguinTimeRef)+'.nc'])
 outPutFilePath = ('/').join([outputPath, outPutFile])
 
 #output variable name

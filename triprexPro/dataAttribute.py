@@ -40,7 +40,7 @@ def variableAttribute(variable, varName, radar):
 
    if varName == 'SW':
       
-      long_name = radar+' band Peak Width'
+      long_name = radar+' Spectrum Width'
       units = 'm/s'
  
    if varName == 'LDR':

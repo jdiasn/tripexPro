@@ -49,14 +49,14 @@ rangeGateOffSet = 0 #Ka
 
 #output File Definitions
 outputPath = '/home/jdias/Projects/radarDataResampled'
-outPutFile = ('_').join(['tripex_3fr_L1_mam', dateName, str(beguinTimeRef)+'.nc'])
+outPutFile = ('_').join(['tripex_3fr_L1_mom', dateName, str(beguinTimeRef)+'.nc'])
 outPutFilePath = ('/').join([outputPath, outPutFile])
 
 #output variable  name
 if variableName == 'Zg':    
    varFinalName = 'Ze'
     
-elif variableName == 'vm' or variableName == 'VEL':
+elif variableName == 'vm' or variableName == 'VELg':
    varFinalName = 'Vd'
 
 elif variableName == 'RMS':
