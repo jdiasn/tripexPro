@@ -12,11 +12,11 @@ import tripexLib as trLib
 path = '/home/jdias/Projects/radarData'
 #prefix = 'joyrad94_joyce_compact_'
 
-radar = 'X'
-#radar = 'W'
+#radar = 'X'
+radar = 'W'
 
 #variableName = 'Ze' #X
-variableName = 'vd' #X
+#variableName = 'vd' #X
 
 
 #variableName = 'Ze' #W
