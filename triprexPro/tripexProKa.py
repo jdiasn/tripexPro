@@ -1,3 +1,4 @@
+from sys import argv
 import glob
 import numpy as np
 import pandas as pd
@@ -6,51 +7,50 @@ from netCDF4 import Dataset
 import writeData
 import tripexLib as trLib
 
+#input File Path
+path = argv[1]
+#output File Path
+outputPath = argv[2]
+#-----------------------------
 
-#input File Definitions
-path = '/home/jdias/Projects/radarData'
-prefix = 'joyrad94_joyce_compact_'
+#--Time Definitions-----------
+year = int(argv[3])
+month = int(argv[4])
+day = int(argv[5])
+beguinTimeRef = int(argv[6])
+timeFreq = argv[7]
+timeTolerance = argv[8]
 
-radar = 'Ka'
-
-#variableName = 'Zg'
-#variableName = 'VELg'
-#variableName = 'RMS'
-variableName = 'LDR'
-
-#Time Definitions
-year = 2015
-month = 11
-day = 24
 dateName = str(year)+str(month)+str(day)
-beguinTimeRef = 17
 endTimeRef = beguinTimeRef + 1
-
 start = pd.datetime(year, month, day,beguinTimeRef, 0, 0)
 end = pd.datetime(year, month, day, endTimeRef, 0, 0)
-
-timeRef = pd.date_range(start, end, freq='4S')
+timeRef = pd.date_range(start, end, freq=timeFreq)
 timeRefUnix = np.array(timeRef,float)
 usedIndexTime = np.ones((len(timeRef)))*np.nan
-timeTolerance = '2S'
+#-----------------------------
 
-#Range Definitions
-beguinRangeRef = 100
-endRangeRef = 12000
-
-rangeRef = np.arange(beguinRangeRef, endRangeRef, 30)
+#--Range Definitions----------
+beguinRangeRef = int(argv[9])
+endRangeRef = int(argv[10])
+rangeFreq = int(argv[11])
+rangeTolerance = int(argv[12])
+rangeRef = np.arange(beguinRangeRef, endRangeRef, rangeFreq)
 usedIndexRange = np.ones((len(rangeRef)))*np.nan
-rangeTolerance = '17'
+#-----------------------------
 
-rangeGateOffSet = 0 #Ka
-#rangeGateOffSet = -2 #W
-#rangeGateOffSet = -17.5 #X
-
+#--Radar variables------------
+radar = argv[13]
+rangeGateOffSet = float(argv[14]) #X
+variableName = argv[15] #X
+#-----------------------------
 
 #output File Definitions
-outputPath = '/home/jdias/Projects/radarDataResampled'
-outPutFile = ('_').join(['tripex_3fr_L1_mom', dateName, str(beguinTimeRef)+'.nc'])
+outPutFile = ('_').join(['tripex_3fr_L1_momTest', dateName,
+                       str(beguinTimeRef)+'.nc'])
 outPutFilePath = ('/').join([outputPath, outPutFile])
+print outPutFilePath
+
 
 #output variable  name
 if variableName == 'Zg':    
