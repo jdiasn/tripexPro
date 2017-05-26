@@ -1,3 +1,7 @@
+#-----------------------------
+#Shell script to control the
+#resample process 
+#
 #--File Definition------------
 inputPath='/home/jdias/Projects/radarData'
 outputPath='/home/jdias/Projects/radarDataResampled'
