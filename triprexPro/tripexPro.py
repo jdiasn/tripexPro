@@ -8,23 +8,11 @@ import writeData
 import tripexLib as trLib
 
 
-<<<<<<< HEAD
-#input File Definitions
-path = '/home/jdias/Projects/radarData'
-#prefix = 'joyrad94_joyce_compact_'
-
-radar = 'X'
-#radar = 'W'
-
-variableName = 'Ze' #X
-#variableName = 'vd' #X
-=======
 #input File Path
 path = argv[1]
 #output File Path
 outputPath = argv[2]
 #-----------------------------
->>>>>>> setupControl
 
 #--Time Definitions-----------
 year = int(argv[3])
@@ -50,15 +38,7 @@ rangeFreq = int(argv[11])
 rangeTolerance = int(argv[12])
 rangeRef = np.arange(beguinRangeRef, endRangeRef, rangeFreq)
 usedIndexRange = np.ones((len(rangeRef)))*np.nan
-<<<<<<< HEAD
-rangeTolerance = '17'
-
-#rangeGateOffSet = 0 #Ka
-#rangeGateOffSet = -2 #W
-rangeGateOffSet = -17.5 #X
-=======
 #-----------------------------
->>>>>>> setupControl
 
 #--Radar variables------------
 radar = argv[13]
@@ -67,13 +47,8 @@ variableName = argv[15] #X
 #-----------------------------
 
 #output File Definitions
-<<<<<<< HEAD
-outputPath = '/home/jdias/Projects/radarDataResampled'
-outPutFile = ('_').join(['tripex_3fr_L1_momTest', dateName, str(beguinTimeRef)+'.nc'])
-=======
 outPutFile = ('_').join(['tripex_3fr_L1_momTest', dateName,
                        str(beguinTimeRef)+'.nc'])
->>>>>>> setupControl
 outPutFilePath = ('/').join([outputPath, outPutFile])
 print outPutFilePath
 
