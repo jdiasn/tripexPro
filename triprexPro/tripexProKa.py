@@ -128,7 +128,7 @@ for radarFile in fileList:
    varData = pd.DataFrame(index=humamTimeW, columns=ranges, data=var)
    varData['times'] = timesW
    varData = varData.drop_duplicates(subset=['times'])
-
+   del varData['times']
  
    timeIndexList = trLib.getIndexList(varData, timeRef, timeTolerance)
    #varResTimeEmpty = trLib.getEmptyMatrix(len(timeRef), len(ranges))
@@ -148,7 +148,10 @@ for radarFile in fileList:
     
    varResTimeRangeEmpty = varResTimeRangeFilled*1
    #test = varResTimeRangeFilled
-  
+
+#Calculate range deviation
+rangeDeviation = trLib.getRangeDeviation(rangeRef, ranges, usedIndexRange)
+ 
 #Final resampled (Time and Range)
 varResTimeRangeFilled = np.ma.masked_invalid(varResTimeRangeFilled)
 
@@ -156,6 +159,9 @@ varResTimeRangeFilled = np.ma.masked_invalid(varResTimeRangeFilled)
 rootgrpOut = writeData.createNetCdf(outPutFilePath)
 time_ref = writeData.createTimeDimension(rootgrpOut, timeRefUnix)
 range_ref = writeData.createRangeDimension(rootgrpOut, rangeRef)
+range_dev = writeData.createRangeDeviation(rootgrpOut, rangeDeviation,
+                                          'deviation', 'deviation_'+radar, 
+                                          radar)
 var_resampled = writeData.createVariable(rootgrpOut, varResTimeRangeFilled.transpose(),
                                         varFinalName, varNameOutput, radar)
 rootgrpOut.close()

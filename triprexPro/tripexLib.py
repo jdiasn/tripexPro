@@ -84,6 +84,19 @@ def getNearestIndex(timeRef, timeStamp, tolerance):
     
    return index
 
+def getRangeDeviation(rangeRef, ranges, usedIndexRange):
+   
+   deviationList = []
+   for i, usedIndex in enumerate(usedIndexRange):
+
+      try:
+         deviation = rangeRef[i] - ranges[int(usedIndex)]
+         deviationList.append(deviation)
+
+      except:
+         deviationList.append(np.nan)
+    
+   return np.array(deviationList) 
 
 def getResampledData(emptyMatrixData, variableData, indexList, usedIndex):
     
@@ -92,9 +105,9 @@ def getResampledData(emptyMatrixData, variableData, indexList, usedIndex):
 
       try:
          emptyMatrixData[i] = variableData[int(index)]
-         usedIndex[i] = int(index)
+         usedIndex.append(int(index))
        
       except:
-         pass
+         usedIndex.append(np.nan)
     
    return emptyMatrixData, usedIndex

@@ -47,6 +47,11 @@ def variableAttribute(variable, varName, radar):
       
       long_name = radar+' band Linear De-Polarization Ratio'
       units = 'm/s'
+    
+   if varName == 'devitation':
+
+      long_name = radar+' Range deviation'
+      units = 'm'
      
    variable.long_name = long_name
    variable.units = units

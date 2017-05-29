@@ -5,6 +5,7 @@
 #--File Definition------------
 inputPath='/home/jdias/Projects/radarData'
 outputPath='/home/jdias/Projects/radarDataResampled'
+prefix='tripex_3fr_L1_momTest'
 #-----------------------------
 
 #--Time Definition------------
@@ -30,10 +31,10 @@ rangeOffSet=-17.5
 variables=('Ze' 'vd')
 for variable in ${variables[@]}
 do
-python tripexPro.py $inputPath $outputPath $year $month $day \
-                          $beguinTime $timeFreq $timeTolerance \
-                          $beguinRangeRef $endRangeRef $rangeFreq \
-                          $rangeTolerance $radar $rangeOffSet $variable
+python tripexPro.py $inputPath $outputPath $prefix $year $month \
+                    $day $beguinTime $timeFreq $timeTolerance \
+                    $beguinRangeRef $endRangeRef $rangeFreq \
+                    $rangeTolerance $radar $rangeOffSet $variable
 done
 #-----------------------------
 echo Radar: $(tput setaf 3) $radar Done $(tput sgr 0)
@@ -46,10 +47,10 @@ rangeOffSet=-2
 variables=('Ze' 'vm' 'sigma')
 for variable in ${variables[@]}
 do
-python tripexPro.py $inputPath $outputPath $year $month $day \
-                          $beguinTime $timeFreq $timeTolerance \
-                          $beguinRangeRef $endRangeRef $rangeFreq \
-                          $rangeTolerance $radar $rangeOffSet $variable
+python tripexPro.py $inputPath $outputPath $prefix $year $month \
+                    $day $beguinTime $timeFreq $timeTolerance \
+                    $beguinRangeRef $endRangeRef $rangeFreq \
+                    $rangeTolerance $radar $rangeOffSet $variable
 done
 #-----------------------------
 echo Radar: $(tput setaf 3) $radar Done $(tput sgr 0)

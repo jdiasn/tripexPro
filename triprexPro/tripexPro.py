@@ -12,15 +12,17 @@ import tripexLib as trLib
 path = argv[1]
 #output File Path
 outputPath = argv[2]
+#prefix
+prefix = argv[3]
 #-----------------------------
 
 #--Time Definitions-----------
-year = int(argv[3])
-month = int(argv[4])
-day = int(argv[5])
-beguinTimeRef = int(argv[6])
-timeFreq = argv[7]
-timeTolerance = argv[8]
+year = int(argv[4])
+month = int(argv[5])
+day = int(argv[6])
+beguinTimeRef = int(argv[7])
+timeFreq = argv[8]
+timeTolerance = argv[9]
 
 dateName = str(year)+str(month)+str(day)
 endTimeRef = beguinTimeRef + 1
@@ -32,18 +34,18 @@ usedIndexTime = np.ones((len(timeRef)))*np.nan
 #-----------------------------
 
 #--Range Definitions----------
-beguinRangeRef = int(argv[9])
-endRangeRef = int(argv[10])
-rangeFreq = int(argv[11])
-rangeTolerance = int(argv[12])
+beguinRangeRef = int(argv[10])
+endRangeRef = int(argv[11])
+rangeFreq = int(argv[12])
+rangeTolerance = int(argv[13])
 rangeRef = np.arange(beguinRangeRef, endRangeRef, rangeFreq)
 usedIndexRange = np.ones((len(rangeRef)))*np.nan
 #-----------------------------
 
 #--Radar variables------------
-radar = argv[13]
-rangeGateOffSet = float(argv[14]) #X
-variableName = argv[15] #X
+radar = argv[14]
+rangeGateOffSet = float(argv[15]) #X
+variableName = argv[16] #X
 #-----------------------------
 
 #output File Definitions
@@ -125,12 +127,14 @@ for radarFile in fileList:
    varData = pd.DataFrame(index=humamTimeW, columns=ranges, data=var)#.drop_duplicates()
    varData['times'] = timesW
    varData = varData.drop_duplicates(subset=['times'])
+   del varData['times']
 
    timeIndexList = trLib.getIndexList(varData, timeRef, timeTolerance)
 
    varResTimeEmpty = trLib.getEmptyMatrix(len(timeRef), len(ranges))
-   varResTimeFilled, usedIndexTime = trLib.getResampledData(varResTimeEmpty, var,
-                                                            timeIndexList, usedIndexTime)
+   varResTimeFilled, usedIndexTime = trLib.getResampledData(varResTimeEmpty,
+                                                           var, timeIndexList, 
+                                                           usedIndexTime)
     
    ##Nearest in range
    varResTimeFilled = varResTimeFilled.transpose()
@@ -143,7 +147,8 @@ for radarFile in fileList:
                                                                   rangeIndexList, 
                                                                   usedIndexRange)
 
-   #varResTimeRangeEmpty = varResTimeRangeFilled*1
+#Calculate range deviation
+rangeDeviation = trLib.getRangeDeviation(rangeRef, ranges, usedIndexRange)
 
 #Final resampled (Time and Range)
 varResTimeRangeFilled = np.ma.masked_invalid(varResTimeRangeFilled)
@@ -151,6 +156,9 @@ varResTimeRangeFilled = np.ma.masked_invalid(varResTimeRangeFilled)
 rootgrpOut = writeData.createNetCdf(outPutFilePath)
 time_ref = writeData.createTimeDimension(rootgrpOut, timeRefUnix)
 range_ref = writeData.createRangeDimension(rootgrpOut, rangeRef)
+range_dev = writeData.createRangeDeviation(rootgrpOut, rangeDeviation,
+                                          'deviation', 'deviation_'+radar, 
+                                          radar)
 var_resampled = writeData.createVariable(rootgrpOut, varResTimeRangeFilled.transpose(),
                                         varFinalName, varNameOutput, radar)
 rootgrpOut.close()

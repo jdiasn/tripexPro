@@ -50,7 +50,8 @@ def createVariable(rootgrpOut, variable, varName, varNameOutput, radar):
                                              ('time_ref','range_ref'), 
                                              fill_value=np.nan)
       var_nearest[:] = variable
-      var_nearest = dataAttribute.variableAttribute(var_nearest, varName,
+      var_nearest = dataAttribute.variableAttribute(var_nearest,
+                                                   varName,
                                                    radar)
       return var_nearest
 
@@ -58,4 +59,18 @@ def createVariable(rootgrpOut, variable, varName, varNameOutput, radar):
       return None
 
 
+def createRangeDeviation(rootgrpOut, variable, varName, varNameOutput, radar):
+
+   try:
+    
+      var_nearest = rootgrpOut.createVariable(varNameOutput, np.float32,
+                                             ('range_ref'), fill_value=np.nan)
+      var_nearest[:] = variable
+      var_nearest = dataAttribute.variableAttribute(var_nearest, 
+                                                   varName,
+                                                   radar)
+      return var_nearest
+
+   except:
+      return None
 
