@@ -21,7 +21,7 @@ def createTimeDimension(rootgrpOut, timeRef):
       rootgrpOut.createDimension('time', None)
       time_ref = rootgrpOut.createVariable('time', np.int64, ('time',))
       time_ref[:] = timeRef
-      time_ref = dataAttribute.timeAttributes(time)
+      time_ref = dataAttribute.timeAttributes(time_ref)
       return time_ref
 
    except:

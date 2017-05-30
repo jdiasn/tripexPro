@@ -1,9 +1,14 @@
 def globalAttributes(rootgrpOut):
    
    rootgrpOut.Experiment = 'TRIPEX, Forschungszentrum Juelich'
-   rootgrpOut.Instrument = 'Ka Band Cloud Radar MIRA-36, METEK GmbH www.metek.de'
+   rootgrpOut.Instruments = 'JOYRAD-94 94.4 GHz cloud radar (W band), JOYRAD-35 35.5 GHz cloud radar (Ka band), KIXPOL 9.4 GHz radar (KIT) (X band)'
    rootgrpOut.Data = 'Produced by Jose Dias, jdiasnet@uni-koeln.de'
-   rootgrpOut.Routines = 'tripexPro*.py'
+   rootgrpOut.Processed_with = 'tripexPro*.py'
+   rootgrpOut.Institution = 'Data processed within the Emmy-Noether Group OPTIMIce, Institute for Geophysics and Meteorology, University of Cologne, Germany'
+   rootgrpOut.comment = 'All radar data have been only resampled for this data product. No offset or attenuation corrections applied'
+   rootgrpOut.Latitude = '50.908547 N'
+   rootgrpOut.Longitude = '6.413536 E'
+   rootgrpOut.Altitude = '111 m asl'
 
    return rootgrpOut
 
@@ -18,7 +23,7 @@ def timeAttributes(timeRef):
 
 def rangeAttributes(rangeRef):
 
-   rangeRef.long_name = 'Range from Ka band radar antenna to the centre of each range gate'
+   rangeRef.long_name = 'Vertical distance of the center radar range gates to the JOYCE platform'
    rangeRef.units = 'm'
 
    return rangeRef
@@ -26,7 +31,15 @@ def rangeAttributes(rangeRef):
 
 def variableAttribute(variable, varName, radar):
 
+   if radar == 'X':
+      source = 'KIXPOL 9.4 GHz radar (KIT)'
 
+   if radar == 'W':
+      source = 'JOYRAD-94 94 GHz cloud radar'
+
+   if radar == 'Ka':
+      source = 'JOYRAD-35 35.5 GHz cloud radar'
+    
    # Ze attribute
    if varName == 'Ze':
       
@@ -35,7 +48,7 @@ def variableAttribute(variable, varName, radar):
 
    if varName == 'v':
       
-      long_name = radar+' band Mean Doppler velocity'
+      long_name = radar+' band Mean Doppler velocity (Sign convention: Negative when moving towards the radar) '
       units = 'm s-1'
 
    if varName == 'SW':
@@ -48,13 +61,14 @@ def variableAttribute(variable, varName, radar):
       long_name = radar+' band Linear De-Polarization Ratio'
       units = 'm s-1'
     
-   if varName == 'devitation':
+   if varName == 'delta_altitude':
 
-      long_name = radar+' Range deviation'
+      long_name = radar+'Vertical distance of the original range resolution to the vertical grid (var:altitude) used to resample the data'
       units = 'm'
      
    variable.long_name = long_name
    variable.units = units
+   variable.source = source
 
    return variable
 

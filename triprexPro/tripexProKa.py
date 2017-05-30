@@ -167,7 +167,7 @@ rootgrpOut = writeData.createNetCdf(outPutFilePath)
 time_ref = writeData.createTimeDimension(rootgrpOut, timeRefUnix)
 range_ref = writeData.createRangeDimension(rootgrpOut, rangeRef)
 range_dev = writeData.createRangeDeviation(rootgrpOut, rangeDeviation,
-                                          'deviation', 'deviation_'+radar, 
+                                          'delta_altitude', 'delta_altitude_'+radar,
                                           radar)
 var_resampled = writeData.createVariable(rootgrpOut, varResTimeRangeFilled.transpose(),
                                         varFinalName, varNameOutput, radar)
