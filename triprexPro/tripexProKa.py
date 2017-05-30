@@ -11,15 +11,17 @@ import tripexLib as trLib
 path = argv[1]
 #output File Path
 outputPath = argv[2]
+#prefix
+prefix = argv[3]
 #-----------------------------
 
 #--Time Definitions-----------
-year = int(argv[3])
-month = int(argv[4])
-day = int(argv[5])
-beguinTimeRef = int(argv[6])
-timeFreq = argv[7]
-timeTolerance = argv[8]
+year = int(argv[4])
+month = int(argv[5])
+day = int(argv[6])
+beguinTimeRef = int(argv[7])
+timeFreq = argv[8]
+timeTolerance = argv[9]
 
 dateName = str(year)+str(month)+str(day)
 endTimeRef = beguinTimeRef + 1
@@ -31,22 +33,22 @@ usedIndexTime = np.ones((len(timeRef)))*np.nan
 #-----------------------------
 
 #--Range Definitions----------
-beguinRangeRef = int(argv[9])
-endRangeRef = int(argv[10])
-rangeFreq = int(argv[11])
-rangeTolerance = int(argv[12])
+beguinRangeRef = int(argv[10])
+endRangeRef = int(argv[11])
+rangeFreq = int(argv[12])
+rangeTolerance = int(argv[13])
 rangeRef = np.arange(beguinRangeRef, endRangeRef, rangeFreq)
 usedIndexRange = np.ones((len(rangeRef)))*np.nan
 #-----------------------------
 
 #--Radar variables------------
-radar = argv[13]
-rangeGateOffSet = float(argv[14]) #X
-variableName = argv[15] #X
+radar = argv[14]
+rangeGateOffSet = float(argv[15]) #X
+variableName = argv[16] #X
 #-----------------------------
 
 #output File Definitions
-outPutFile = ('_').join(['tripex_3fr_L1_momTest', dateName,
+outPutFile = ('_').join([prefix, dateName,
                        str(beguinTimeRef)+'.nc'])
 outPutFilePath = ('/').join([outputPath, outPutFile])
 print outPutFilePath
@@ -57,7 +59,7 @@ if variableName == 'Zg':
    varFinalName = 'Ze'
     
 elif variableName == 'vm' or variableName == 'VELg':
-   varFinalName = 'Vd'
+   varFinalName = 'v'
 
 elif variableName == 'RMS':
    varFinalName = 'SW'
@@ -114,7 +116,12 @@ for radarFile in fileList:
    #it gets desireble variable 
    var = rootgrp.variables[variableName][:]
 
-   if varFinalName == 'Ze':
+   if varFinalName == 'Ze' and radar == 'Ka':
+      var = 10*np.log10(var)   
+   else:
+      pass
+
+   if varFinalName == 'LDR' and radar == 'Ka':
       var = 10*np.log10(var)   
    else:
       pass

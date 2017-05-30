@@ -44,12 +44,12 @@ usedIndexRange = np.ones((len(rangeRef)))*np.nan
 
 #--Radar variables------------
 radar = argv[14]
-rangeGateOffSet = float(argv[15]) #X
-variableName = argv[16] #X
+rangeGateOffSet = float(argv[15]) 
+variableName = argv[16] 
 #-----------------------------
 
 #output File Definitions
-outPutFile = ('_').join(['tripex_3fr_L1_momTest', dateName,
+outPutFile = ('_').join([prefix, dateName,
                        str(beguinTimeRef)+'.nc'])
 outPutFilePath = ('/').join([outputPath, outPutFile])
 print outPutFilePath
@@ -59,7 +59,7 @@ if variableName == 'Zg':
    varFinalName = 'Ze'
  
 elif variableName == 'vm' or variableName == 'vd':
-   varFinalName = 'Vd'
+   varFinalName = 'v'
 
 elif variableName == 'sigma':
    varFinalName = 'SW'
@@ -124,7 +124,7 @@ for radarFile in fileList:
    rootgrp.close()
     
    ##Nearest in time
-   varData = pd.DataFrame(index=humamTimeW, columns=ranges, data=var)#.drop_duplicates()
+   varData = pd.DataFrame(index=humamTimeW, columns=ranges, data=var)
    varData['times'] = timesW
    varData = varData.drop_duplicates(subset=['times'])
    del varData['times']

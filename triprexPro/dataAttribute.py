@@ -11,7 +11,7 @@ def globalAttributes(rootgrpOut):
 def timeAttributes(timeRef):
    
    timeRef.long_name = 'time in sec since 01.01.1970 00:00:00'
-   timeRef.units = 'seconds'
+   timeRef.units = 's'
 
    return timeRef
 
@@ -33,20 +33,20 @@ def variableAttribute(variable, varName, radar):
       long_name = 'Equivalent '+radar+' band Reflectivity Factor Ze of all Targets'
       units = 'dBZ'
 
-   if varName == 'Vd':
+   if varName == 'v':
       
       long_name = radar+' band Mean Doppler velocity'
-      units = 'm/s'
+      units = 'm s-1'
 
    if varName == 'SW':
       
       long_name = radar+' Spectrum Width'
-      units = 'm/s'
+      units = 'm s-1'
  
    if varName == 'LDR':
       
       long_name = radar+' band Linear De-Polarization Ratio'
-      units = 'm/s'
+      units = 'm s-1'
     
    if varName == 'devitation':
 

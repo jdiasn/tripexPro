@@ -5,7 +5,7 @@
 #--File Definition------------
 inputPath='/home/jdias/Projects/radarData'
 outputPath='/home/jdias/Projects/radarDataResampled'
-prefix='tripex_3fr_L1_momTest'
+prefix='tripex_3fr_L1_momTes'
 #-----------------------------
 
 #--Time Definition------------
@@ -63,10 +63,10 @@ rangeOffSet=0
 variables=('Zg' 'VELg' 'RMS' 'LDR')
 for variable in ${variables[@]}
 do
-python tripexProKa.py $inputPath $outputPath $year $month $day \
-                          $beguinTime $timeFreq $timeTolerance \
-                          $beguinRangeRef $endRangeRef $rangeFreq \
-                          $rangeTolerance $radar $rangeOffSet $variable
+python tripexProKa.py $inputPath $outputPath $prefix $year $month \
+                      $day $beguinTime $timeFreq $timeTolerance \
+                      $beguinRangeRef $endRangeRef $rangeFreq \
+                      $rangeTolerance $radar $rangeOffSet $variable
 done
 #-----------------------------
 echo Radar: $(tput setaf 3) $radar Done $(tput sgr 0)
