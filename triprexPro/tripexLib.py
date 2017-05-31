@@ -84,15 +84,19 @@ def getNearestIndex(timeRef, timeStamp, tolerance):
     
    return index
 
-def getRangeDeviation(rangeRef, ranges, usedIndexRange):
+def getDeviation(rangeRef, ranges, usedIndexRange):
    
    deviationList = []
    for i, usedIndex in enumerate(usedIndexRange):
 
       try:
-         deviation = rangeRef[i] - ranges[int(usedIndex)]
-         deviationList.append(deviation)
+         if type(rangeRef) == pd.tseries.index.DatetimeIndex:
+            deviation = rangeRef[i].second - ranges[int(usedIndex)].second
+         else:
+            deviation = rangeRef[i] - ranges[int(usedIndex)]
 
+         deviationList.append(deviation)
+         
       except:
          deviationList.append(np.nan)
     

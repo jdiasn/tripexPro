@@ -156,8 +156,10 @@ for radarFile in fileList:
    varResTimeRangeEmpty = varResTimeRangeFilled*1
    #test = varResTimeRangeFilled
 
+#Calculate time deviation
+timeDeviation = trLib.getDeviation(timeRef, humamTimeW, usedIndexTime)
 #Calculate range deviation
-rangeDeviation = trLib.getRangeDeviation(rangeRef, ranges, usedIndexRange)
+rangeDeviation = trLib.getDeviation(rangeRef, ranges, usedIndexRange)
  
 #Final resampled (Time and Range)
 varResTimeRangeFilled = np.ma.masked_invalid(varResTimeRangeFilled)
@@ -166,9 +168,10 @@ varResTimeRangeFilled = np.ma.masked_invalid(varResTimeRangeFilled)
 rootgrpOut = writeData.createNetCdf(outPutFilePath)
 time_ref = writeData.createTimeDimension(rootgrpOut, timeRefUnix)
 range_ref = writeData.createRangeDimension(rootgrpOut, rangeRef)
-range_dev = writeData.createRangeDeviation(rootgrpOut, rangeDeviation,
-                                          'delta_altitude', 'delta_altitude_'+radar,
-                                          radar)
+time_dev = writeData.createDeviation(rootgrpOut, timeDeviation,
+                                    'delta_time', radar)
+range_dev = writeData.createDeviation(rootgrpOut, rangeDeviation,
+                                     'delta_altitude', radar)
 var_resampled = writeData.createVariable(rootgrpOut, varResTimeRangeFilled.transpose(),
                                         varFinalName, varNameOutput, radar)
 rootgrpOut.close()

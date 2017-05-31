@@ -93,6 +93,7 @@ fileList = trLib.getFileList(path, dateName,
 #varResTimeRangeEmpty = trLib.getEmptyMatrix(len(rangeRef), len(timeRef))
 #-----------------------------------
 
+auxTimeDeviation = np.ones(len(timeRef),float)*-999
 
 for radarFile in fileList:
 
@@ -102,7 +103,7 @@ for radarFile in fileList:
      
    epoch = trLib.getEpochTime(rootgrp, radar)
    timesW = rootgrp.variables['time'][:]
-
+  
    #timesW = timesWAtt[:]
    humamTimeW = epoch + pd.to_timedelta(timesW, unit='S')
     
@@ -147,18 +148,31 @@ for radarFile in fileList:
                                                                   rangeIndexList, 
                                                                   usedIndexRange)
 
-#Calculate range deviation
-rangeDeviation = trLib.getRangeDeviation(rangeRef, ranges, usedIndexRange)
+   #Calculate time deviation
+   timeDeviation = trLib.getDeviation(timeRef, humamTimeW, usedIndexTime)
+   auxTimeDeviation[timeDeviation!=-999] = timeDeviation[timeDeviation!=-999]
 
+auxTimeDeviation = np.ma.masked_where(auxTimeDeviation==-999,auxTimeDeviation)
+auxTimeDeviation[auxTimeDeviation<-int(timeTolerance[:-1])]=\
+   60 + auxTimeDeviation[auxTimeDeviation<-int(timeTolerance[:-1])]
+
+#timeDeviation = trLib.getDeviation(timeRef, humamTimeW, usedIndexTime)
+
+print timeRef[-1], humamTimeW[usedIndexTime[-1]], auxTimeDeviation[-1]
+#Calculate range deviation
+rangeDeviation = trLib.getDeviation(rangeRef, ranges, usedIndexRange)
 #Final resampled (Time and Range)
 varResTimeRangeFilled = np.ma.masked_invalid(varResTimeRangeFilled)
 
 rootgrpOut = writeData.createNetCdf(outPutFilePath)
 time_ref = writeData.createTimeDimension(rootgrpOut, timeRefUnix)
 range_ref = writeData.createRangeDimension(rootgrpOut, rangeRef)
-range_dev = writeData.createRangeDeviation(rootgrpOut, rangeDeviation,
-                                          'delta_altitude', 'delta_altitude_'+radar,
-                                           radar)
+time_dev = writeData.createDeviation(rootgrpOut, auxTimeDeviation,
+                                    'delta_time', radar)
+#time_dev = writeData.createDeviation(rootgrpOut, timeDeviation,
+#                                    'delta_time', radar)
+range_dev = writeData.createDeviation(rootgrpOut, rangeDeviation,
+                                          'delta_altitude', radar)
 var_resampled = writeData.createVariable(rootgrpOut, varResTimeRangeFilled.transpose(),
                                         varFinalName, varNameOutput, radar)
 rootgrpOut.close()

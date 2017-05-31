@@ -59,16 +59,24 @@ def createVariable(rootgrpOut, variable, varName, varNameOutput, radar):
       return None
 
 
-def createRangeDeviation(rootgrpOut, variable, varName, varNameOutput, radar):
+def createDeviation(rootgrpOut, variable, varName, radar):
+
+   dimension = varName.split('_')[-1]
+   varNameOutput = '_'.join([varName, radar])
+ 
+   if varName == 'time':
+      varType = np.int64
+      
+   else: 
+      varType = np.float32
 
    try:
     
-      var_nearest = rootgrpOut.createVariable(varNameOutput, np.float32,
-                                             ('altitude'), fill_value=np.nan)
+      var_nearest = rootgrpOut.createVariable(varNameOutput, varType,
+                                             (dimension), fill_value=np.nan)
       var_nearest[:] = variable
       var_nearest = dataAttribute.variableAttribute(var_nearest, 
-                                                   varName,
-                                                   radar)
+                                                   varName, radar)
       return var_nearest
 
    except:
