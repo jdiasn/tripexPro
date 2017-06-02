@@ -115,3 +115,32 @@ def getResampledData(emptyMatrixData, variableData, indexList, usedIndex):
          usedIndex.append(np.nan)
     
    return emptyMatrixData, usedIndex
+
+def getResampledDataPd(emptyDataFrame, dataDataFrame, indexList):
+
+   for i, index in enumerate(indexList):
+
+      try:
+         emptyDataFrame.iloc[i]=dataDataFrame.iloc[index]
+        
+      except:
+         pass
+        
+   return emptyDataFrame
+
+def getDeviationPd(reference, resampledData, tolerance=None):
+
+   if type(reference) == pd.tseries.index.DatetimeIndex:
+
+      deviation = reference.second-pd.to_datetime(list(resampledData.times)).second
+      resampledData['delta_time']=deviation
+      tolerance = int(tolerance[:-1])
+      correction = 60.+resampledData.delta_time[resampledData.delta_time<-tolerance]
+      resampledData.loc[resampledData.delta_time<-tolerance,'delta_time']=correction
+      deviation = resampledData.delta_time
+      del resampledData['delta_time']     
+
+   else:
+      deviation = reference - resampledData.ranges
+
+   return deviation

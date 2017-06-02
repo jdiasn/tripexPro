@@ -93,8 +93,6 @@ fileList = trLib.getFileList(path, dateName,
 #varResTimeRangeEmpty = trLib.getEmptyMatrix(len(rangeRef), len(timeRef))
 #-----------------------------------
 
-auxTimeDeviation = np.ones(len(timeRef),float)*-999
-
 for radarFile in fileList:
 
    #it opens the file 
@@ -124,56 +122,86 @@ for radarFile in fileList:
     
    rootgrp.close()
     
-   ##Nearest in time
+   ##Nearest in time -------
    varData = pd.DataFrame(index=humamTimeW, columns=ranges, data=var)
-   varData['times'] = timesW
+   varData['times'] = humamTimeW
    varData = varData.drop_duplicates(subset=['times'])
-   del varData['times']
 
    timeIndexList = trLib.getIndexList(varData, timeRef, timeTolerance)
+ 
+   #empty data frame
+   emptyDataFrame = pd.DataFrame(index=timeRef, columns=varData.columns)   
+   resampledTime = trLib.getResampledDataPd(emptyDataFrame, varData,
+                                           timeIndexList)
 
-   varResTimeEmpty = trLib.getEmptyMatrix(len(timeRef), len(ranges))
-   varResTimeFilled, usedIndexTime = trLib.getResampledData(varResTimeEmpty,
-                                                           var, timeIndexList, 
-                                                           usedIndexTime)
-    
-   ##Nearest in range
-   varResTimeFilled = varResTimeFilled.transpose()
-   rangeRefTable = varData.transpose()
+   #varResTimeEmpty = trLib.getEmptyMatrix(len(timeRef), len(ranges))
+   #varResTimeFilled, usedIndexTime = trLib.getResampledData(varResTimeEmpty,
+   #                                                        var, timeIndexList, 
+   #                                                       usedIndexTime)
+#   timeDeviation = timeRef.second-pd.to_datetime(list(resampledTime.times)).second
+   
+#   resampledTime['delta_time']=timeDeviation
 
-   rangeIndexList = trLib.getIndexList(rangeRefTable, rangeRef, rangeTolerance)
-   varResTimeRangeEmpty = trLib.getEmptyMatrix(len(rangeRef), len(timeRef))
-   varResTimeRangeFilled, usedIndexRange = trLib.getResampledData(varResTimeRangeEmpty,
-                                                                  varResTimeFilled, 
-                                                                  rangeIndexList, 
-                                                                  usedIndexRange)
+#   intTimeTol = int(timeTolerance[:-1])
+   #print intTimeTol 
+#   timeDevCorrection = 60. + resampledTime.delta_time[resampledTime.delta_time<-intTimeTol]
+ #  resampledTime.loc[resampledTime.delta_time<-intTimeTol,'delta_time']=timeDevCorrection
+ #  timeDeviation = resampledTime.delta_time
+
+   timeDeviation = trLib.getDeviationPd(timeRef, resampledTime, timeTolerance)
+
+   del resampledTime['times']
+
+   #it replaces original resampledTime with resampledTime transposed
+   resampledTime = resampledTime.T 
+   #-----------------------
+
+
+   ##Nearest in range -----
+   resampledTime['ranges']=ranges
+
+   rangeIndexList = trLib.getIndexList(resampledTime, rangeRef, rangeTolerance)
+   emptyDataFrame = pd.DataFrame(index=rangeRef, columns=resampledTime.columns)
+   #varResTimeRangeFilled, usedIndexRange = trLib.getResampledData(varResTimeRangeEmpty,
+   #                                                               varResTimeFilled, 
+   #                                                               rangeIndexList, 
+   #                                                               usedIndexRange)
+
+   resampledTimeRange = trLib.getResampledDataPd(emptyDataFrame, resampledTime,
+                                                rangeIndexList)  
+#   rangeDeviation = rangeRef - resampledTimeRange.ranges
+   rangeDeviation = trLib.getDeviationPd(rangeRef, resampledTimeRange)
+   del resampledTimeRange['ranges']  
 
    #Calculate time deviation
-   timeDeviation = trLib.getDeviation(timeRef, humamTimeW, usedIndexTime)
-   auxTimeDeviation[timeDeviation!=-999] = timeDeviation[timeDeviation!=-999]
+  # timeDeviation = trLib.getDeviation(timeRef, humamTimeW, usedIndexTime)
+  # auxTimeDeviation[timeDeviation!=-999] = timeDeviation[timeDeviation!=-999]
+ 
 
-auxTimeDeviation = np.ma.masked_where(auxTimeDeviation==-999,auxTimeDeviation)
-auxTimeDeviation[auxTimeDeviation<-int(timeTolerance[:-1])]=\
-   60 + auxTimeDeviation[auxTimeDeviation<-int(timeTolerance[:-1])]
+   #-----------------------
 
-#timeDeviation = trLib.getDeviation(timeRef, humamTimeW, usedIndexTime)
 
-print timeRef[-1], humamTimeW[usedIndexTime[-1]], auxTimeDeviation[-1]
+
 #Calculate range deviation
-rangeDeviation = trLib.getDeviation(rangeRef, ranges, usedIndexRange)
+#rangeDeviation = trLib.getDeviation(rangeRef, ranges, usedIndexRange)
 #Final resampled (Time and Range)
-varResTimeRangeFilled = np.ma.masked_invalid(varResTimeRangeFilled)
-
+#varResTimeRangeFilled = np.ma.masked_invalid(varResTimeRangeFilled)
+#print resampledTimeRange
+#writing data in file
 rootgrpOut = writeData.createNetCdf(outPutFilePath)
 time_ref = writeData.createTimeDimension(rootgrpOut, timeRefUnix)
 range_ref = writeData.createRangeDimension(rootgrpOut, rangeRef)
-time_dev = writeData.createDeviation(rootgrpOut, auxTimeDeviation,
+
+timeDeviation = np.array(timeDeviation.astype(np.float32))
+time_dev = writeData.createDeviation(rootgrpOut, timeDeviation,
                                     'delta_time', radar)
-#time_dev = writeData.createDeviation(rootgrpOut, timeDeviation,
-#                                    'delta_time', radar)
+
+rangeDeviation = np.array(rangeDeviation.astype(np.float32))
 range_dev = writeData.createDeviation(rootgrpOut, rangeDeviation,
                                           'delta_altitude', radar)
-var_resampled = writeData.createVariable(rootgrpOut, varResTimeRangeFilled.transpose(),
+
+resampledTimeRange = np.array(resampledTimeRange.T.astype(np.float32))
+var_resampled = writeData.createVariable(rootgrpOut, resampledTimeRange,
                                         varFinalName, varNameOutput, radar)
 rootgrpOut.close()
 
