@@ -133,21 +133,6 @@ for radarFile in fileList:
    emptyDataFrame = pd.DataFrame(index=timeRef, columns=varData.columns)   
    resampledTime = trLib.getResampledDataPd(emptyDataFrame, varData,
                                            timeIndexList)
-
-   #varResTimeEmpty = trLib.getEmptyMatrix(len(timeRef), len(ranges))
-   #varResTimeFilled, usedIndexTime = trLib.getResampledData(varResTimeEmpty,
-   #                                                        var, timeIndexList, 
-   #                                                       usedIndexTime)
-#   timeDeviation = timeRef.second-pd.to_datetime(list(resampledTime.times)).second
-   
-#   resampledTime['delta_time']=timeDeviation
-
-#   intTimeTol = int(timeTolerance[:-1])
-   #print intTimeTol 
-#   timeDevCorrection = 60. + resampledTime.delta_time[resampledTime.delta_time<-intTimeTol]
- #  resampledTime.loc[resampledTime.delta_time<-intTimeTol,'delta_time']=timeDevCorrection
- #  timeDeviation = resampledTime.delta_time
-
    timeDeviation = trLib.getDeviationPd(timeRef, resampledTime, timeTolerance)
 
    del resampledTime['times']
@@ -162,32 +147,15 @@ for radarFile in fileList:
 
    rangeIndexList = trLib.getIndexList(resampledTime, rangeRef, rangeTolerance)
    emptyDataFrame = pd.DataFrame(index=rangeRef, columns=resampledTime.columns)
-   #varResTimeRangeFilled, usedIndexRange = trLib.getResampledData(varResTimeRangeEmpty,
-   #                                                               varResTimeFilled, 
-   #                                                               rangeIndexList, 
-   #                                                               usedIndexRange)
-
+   
    resampledTimeRange = trLib.getResampledDataPd(emptyDataFrame, resampledTime,
-                                                rangeIndexList)  
-#   rangeDeviation = rangeRef - resampledTimeRange.ranges
+                                                rangeIndexList) 
+ 
    rangeDeviation = trLib.getDeviationPd(rangeRef, resampledTimeRange)
    del resampledTimeRange['ranges']  
 
-   #Calculate time deviation
-  # timeDeviation = trLib.getDeviation(timeRef, humamTimeW, usedIndexTime)
-  # auxTimeDeviation[timeDeviation!=-999] = timeDeviation[timeDeviation!=-999]
- 
-
    #-----------------------
 
-
-
-#Calculate range deviation
-#rangeDeviation = trLib.getDeviation(rangeRef, ranges, usedIndexRange)
-#Final resampled (Time and Range)
-#varResTimeRangeFilled = np.ma.masked_invalid(varResTimeRangeFilled)
-#print resampledTimeRange
-#writing data in file
 rootgrpOut = writeData.createNetCdf(outPutFilePath)
 time_ref = writeData.createTimeDimension(rootgrpOut, timeRefUnix)
 range_ref = writeData.createRangeDimension(rootgrpOut, rangeRef)
