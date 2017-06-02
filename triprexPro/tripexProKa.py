@@ -84,17 +84,10 @@ for nameFile in fileList:
    if len(np.argwhere(elv !=90))==0:
       listAux.append(nameFile)
    rootgrp.close()
+fileList = listAux
 #-----------------------------------
 
-
-varAux = np.zeros((len(timeRef), len(rangeRef)))
-varAux = varAux.transpose()#*-999.
-
-fileList = listAux
-
-varResTimeEmpty = trLib.getEmptyMatrix(len(timeRef), lenRange)
-varResTimeRangeEmpty = trLib.getEmptyMatrix(len(rangeRef), len(timeRef))
-
+varData = pd.DataFrame()
 for radarFile in fileList:
 
    #it opens the file 
@@ -109,9 +102,6 @@ for radarFile in fileList:
     
    #it gets the range and corrects for the reference height
    ranges =rootgrp.variables['range'][:] + rangeGateOffSet
-   elv = rootgrp.variables['elv'][:]
-
-   varResTimeRangeEmpty = trLib.getEmptyMatrix(len(rangeRef), len(timeRef))
 
    #it gets desireble variable 
    var = rootgrp.variables[variableName][:]
@@ -129,50 +119,46 @@ for radarFile in fileList:
    var = np.ma.masked_invalid(var)
    np.ma.set_fill_value(var, np.nan)
 
+   varDataTemp = pd.DataFrame(index=humamTimeW, columns=ranges, data=var)
+   varDataTemp['times'] = humamTimeW
+   varDataTemp = varDataTemp.drop_duplicates(subset=['times'])
+    
+   varData=varData.append(varDataTemp)
    rootgrp.close()
-    
-   ##Nearest in time
-   varData = pd.DataFrame(index=humamTimeW, columns=ranges, data=var)
-   varData['times'] = timesW
-   varData = varData.drop_duplicates(subset=['times'])
-   del varData['times']
- 
-   timeIndexList = trLib.getIndexList(varData, timeRef, timeTolerance)
-   #varResTimeEmpty = trLib.getEmptyMatrix(len(timeRef), len(ranges))
-   varResTimeFilled, usedIndexTime = trLib.getResampledData(varResTimeEmpty, var,
-                                                            timeIndexList, usedIndexTime)
-    
-   ##Nearest in range
-   varResTimeFilled = varResTimeFilled.transpose()
-   rangeRefTable = varData.transpose()
 
-   rangeIndexList = trLib.getIndexList(rangeRefTable, rangeRef, rangeTolerance)
-   #varResTimeRangeEmpty = trLib.getEmptyMatrix(len(rangeRef), len(timeRef))
-   varResTimeRangeFilled, usedIndexRange = trLib.getResampledData(varResTimeRangeEmpty,
-                                                                  varResTimeFilled, 
-                                                                  rangeIndexList, 
-                                                                  usedIndexRange)
+#resample in time
+timeIndexList = trLib.getIndexList(varData, timeRef, timeTolerance)
+emptyDataFrame = pd.DataFrame(index=timeRef, columns=varData.columns)
+resampledTime = trLib.getResampledDataPd(emptyDataFrame, varData, timeIndexList)
+timeDeviation = trLib.getDeviationPd(timeRef, resampledTime, timeTolerance)
+del resampledTime['times']
+resampledTime = resampledTime.T
+
+#resample in range
+resampledTime['ranges']=ranges
+rangeIndexList = trLib.getIndexList(resampledTime, rangeRef, rangeTolerance)
+emptyDataFrame = pd.DataFrame(index=rangeRef, columns=resampledTime.columns)
+resampledTimeRange = trLib.getResampledDataPd(emptyDataFrame, resampledTime,
+                                             rangeIndexList) 
+rangeDeviation = trLib.getDeviationPd(rangeRef, resampledTimeRange)
+del resampledTimeRange['ranges'] 
+
     
-   varResTimeRangeEmpty = varResTimeRangeFilled*1
-   #test = varResTimeRangeFilled
-
-#Calculate time deviation
-timeDeviation = trLib.getDeviation(timeRef, humamTimeW, usedIndexTime)
-#Calculate range deviation
-rangeDeviation = trLib.getDeviation(rangeRef, ranges, usedIndexRange)
- 
-#Final resampled (Time and Range)
-varResTimeRangeFilled = np.ma.masked_invalid(varResTimeRangeFilled)
-
 #To write the data
 rootgrpOut = writeData.createNetCdf(outPutFilePath)
 time_ref = writeData.createTimeDimension(rootgrpOut, timeRefUnix)
 range_ref = writeData.createRangeDimension(rootgrpOut, rangeRef)
+
+timeDeviation = np.array(timeDeviation.astype(np.float32))
 time_dev = writeData.createDeviation(rootgrpOut, timeDeviation,
                                     'delta_time', radar)
+
+rangeDeviation = np.array(rangeDeviation.astype(np.float32))
 range_dev = writeData.createDeviation(rootgrpOut, rangeDeviation,
                                      'delta_altitude', radar)
-var_resampled = writeData.createVariable(rootgrpOut, varResTimeRangeFilled.transpose(),
+
+resampledTimeRange = np.array(resampledTimeRange.T.astype(np.float32))
+var_resampled = writeData.createVariable(rootgrpOut, resampledTimeRange,
                                         varFinalName, varNameOutput, radar)
 rootgrpOut.close()
 
