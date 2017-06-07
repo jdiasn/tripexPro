@@ -8,7 +8,7 @@ def globalAttributes(rootgrpOut):
    rootgrpOut.comment = 'All radar data have been only resampled for this data product. No offset or attenuation corrections applied'
    rootgrpOut.Latitude = '50.908547 N'
    rootgrpOut.Longitude = '6.413536 E'
-   rootgrpOut.Altitude = '111 m asl'
+   rootgrpOut.Altitude = 'Altitude of the roof 111 m asl'
 
    return rootgrpOut
 

@@ -144,3 +144,18 @@ def getDeviationPd(reference, resampledData, tolerance=None):
       deviation = reference - resampledData.ranges
 
    return deviation
+
+
+def checkFileListKa(fileList):
+
+   listAux = []
+   for nameFile in fileList:
+      rootgrp = Dataset(nameFile, 'r')
+      elv = rootgrp.variables['elv'][:]
+      lenRange = len(rootgrp.variables['range'])
+      if len(np.argwhere(elv !=90))==0:
+         listAux.append(nameFile)
+      rootgrp.close()
+
+   return listAux
+

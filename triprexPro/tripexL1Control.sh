@@ -5,7 +5,7 @@
 #--File Definition------------
 inputPath='/home/jdias/Projects/radarData'
 outputPath='/home/jdias/Projects/radarDataResampled'
-prefix='tripex_3fr_L1_momTes'
+prefix='tripex_3fr_L1_momTest'
 #-----------------------------
 
 #--Time Definition------------
@@ -27,11 +27,11 @@ rangeTolerance=17
 #--X band Radar setup---------
 #
 radar='X'
-rangeOffSet=-17.5
+rangeOffSet=-15.5
 variables=('Ze' 'vd')
 for variable in ${variables[@]}
 do
-python tripexPro.py $inputPath $outputPath $prefix $year $month \
+python tripexL1.py $inputPath $outputPath $prefix $year $month \
                     $day $beguinTime $timeFreq $timeTolerance \
                     $beguinRangeRef $endRangeRef $rangeFreq \
                     $rangeTolerance $radar $rangeOffSet $variable
@@ -43,11 +43,11 @@ echo Radar: $(tput setaf 3) $radar Done $(tput sgr 0)
 #--W band Radar setup---------
 #
 radar='W'
-rangeOffSet=-2
+rangeOffSet=0
 variables=('Ze' 'vm' 'sigma')
 for variable in ${variables[@]}
 do
-python tripexPro.py $inputPath $outputPath $prefix $year $month \
+python tripexL1.py $inputPath $outputPath $prefix $year $month \
                     $day $beguinTime $timeFreq $timeTolerance \
                     $beguinRangeRef $endRangeRef $rangeFreq \
                     $rangeTolerance $radar $rangeOffSet $variable
@@ -56,14 +56,14 @@ done
 echo Radar: $(tput setaf 3) $radar Done $(tput sgr 0)
 
 
-#--W band Radar setup---------
+#--Ka band Radar setup---------
 #
 radar='Ka'
-rangeOffSet=0
+rangeOffSet=2
 variables=('Zg' 'VELg' 'RMS' 'LDR')
 for variable in ${variables[@]}
 do
-python tripexProKa.py $inputPath $outputPath $prefix $year $month \
+python tripexL1.py $inputPath $outputPath $prefix $year $month \
                       $day $beguinTime $timeFreq $timeTolerance \
                       $beguinRangeRef $endRangeRef $rangeFreq \
                       $rangeTolerance $radar $rangeOffSet $variable
