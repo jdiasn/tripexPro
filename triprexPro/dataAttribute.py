@@ -8,7 +8,7 @@ def globalAttributes(rootgrpOut):
    rootgrpOut.comment = 'All radar data have been only resampled for this data product. No offset or attenuation corrections applied'
    rootgrpOut.Latitude = '50.908547 N'
    rootgrpOut.Longitude = '6.413536 E'
-   rootgrpOut.Altitude = 'Altitude of the roof 111 m asl'
+   rootgrpOut.Altitude = 'Altitude of the JOYCE (www.joyce.cloud) platform: 111m asl'
 
    return rootgrpOut
 
@@ -23,7 +23,7 @@ def timeAttributes(timeRef):
 
 def rangeAttributes(rangeRef):
 
-   rangeRef.long_name = 'Vertical distance of the center radar range gates to the JOYCE platform'
+   rangeRef.long_name = 'Vertical distance of the center radar range gates to the JOYCE platform + 1.5m (altitude of W band center range gates)'
    rangeRef.units = 'm'
 
    return rangeRef
@@ -53,12 +53,12 @@ def variableAttribute(variable, varName, radar):
       variable.Nyquist_velocity = velocityLim
 
    if varName == 'SW':
-      long_name = radar+' Spectrum Width'
+      long_name = radar+' band Spectrum Width'
       units = 'm s-1'
  
    if varName == 'LDR':
       long_name = radar+' band Linear De-Polarization Ratio'
-      units = 'm s-1'
+      units = 'm dB'
     
    if varName == 'delta_altitude':
       long_name = radar+' band vertical distance of the original range resolution to the vertical grid (var:altitude) used to resample the data'
