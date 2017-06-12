@@ -1,24 +1,24 @@
 #-----------------------------
 #Shell script to control the
-#resample process 
+#resample process for a single file
 #
 #--File Definition------------
 inputPath='/home/jdias/Projects/radarData'
 outputPath='/home/jdias/Projects/radarDataResampled'
-prefix='tripex_3fr_L1_momTest'
+prefix='tripex_3fr_L1_mom'
 #-----------------------------
 
 #--Time Definition------------
 year=2015
 month=11
-day=24
-beguinTime=17
+day=11
+beguinTime=23
 timeFreq=4s
 timeTolerance=2s
 #-----------------------------
 
 #--Range Definition
-beguinRangeRef=100
+beguinRangeRef=0
 endRangeRef=12000
 rangeFreq=30
 rangeTolerance=17
@@ -28,7 +28,8 @@ rangeTolerance=17
 #
 radar='X'
 rangeOffSet=-15.5
-variables=('Ze' 'vd')
+#variables=('Ze' 'vd')
+variables=('Ze')
 for variable in ${variables[@]}
 do
 python tripexL1.py $inputPath $outputPath $prefix $year $month \

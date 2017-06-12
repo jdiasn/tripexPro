@@ -14,7 +14,11 @@ def getFileList(radar, year, month, day, beguinTimeRef):
 
    endTimeRef = beguinTimeRef + 1
    start = pd.datetime(year, month, day,beguinTimeRef, 0, 0)
-   end = pd.datetime(year, month, day, endTimeRef, 0, 0)
+
+   if endTimeRef == 24: 
+      end = pd.datetime(year, month, day, 23, 59, 59) 
+   else:
+      end = pd.datetime(year, month, day, endTimeRef, 0, 0)
 
    if radar == 'Ka':
       outputInfoName = 'kaBandInfo.csv'
@@ -35,23 +39,39 @@ def getFileList(radar, year, month, day, beguinTimeRef):
       date=readData.time_long_name.str.split(' ').str[-2:]
 
    epoch = pd.to_datetime(date.str.get(0))
+   readData = readData.sort_values(by=['filePath'], ascending=[True])
    humanDateMin=pd.to_timedelta(readData.min_time, unit='s')+epoch
    humanDateMax=pd.to_timedelta(readData.max_time, unit='s')+epoch
    readData['humanDateMin']=humanDateMin
    readData['humanDateMax']=humanDateMax
+   readData['year']=humanDateMin.dt.year
+   readData['month']=humanDateMin.dt.month
+   readData['day']=humanDateMin.dt.day
+   readData['hourMin'] = humanDateMin.dt.hour
+   readData['hourMax'] = humanDateMax.dt.hour
 
    if radar == 'X':
       #fazer a busca com tempo em segundos
       #X band
       tempFrame = readData[readData.elv==90.]
-      tempFrame = tempFrame[tempFrame.humanDateMin<=start]
-      tempFrame = tempFrame[tempFrame.humanDateMax>end]
-   else:
+      tempFrame = tempFrame[tempFrame.year==year]
+      tempFrame = tempFrame[tempFrame.month==month]
+      tempFrame = tempFrame[tempFrame.day==day]
+
+   #elif radar == 'W':
       #fazer a busca com tempo em segundos
-      #Ka and W band
-      tempFrame = readData[readData.elv==90.]
-      tempFrame = tempFrame[tempFrame.humanDateMin>=start]
-      tempFrame = tempFrame[tempFrame.humanDateMax<end]
+      #W band
+      #tempFrame = readData[readData.elv==90.]
+      #tempFrame = tempFrame[tempFrame.humanDateMin>=start]
+      #tempFrame = tempFrame[tempFrame.humanDateMax<end]
+
+   else:
+     tempFrame = readData[readData.elv==90.]
+     tempFrame = tempFrame[tempFrame.year==year]
+     tempFrame = tempFrame[tempFrame.month==month]
+     tempFrame = tempFrame[tempFrame.day==day]
+     tempFrame = tempFrame[tempFrame.hourMin==beguinTimeRef]
+
 
    finalFileList = tempFrame.filePath.values
    return list(finalFileList)

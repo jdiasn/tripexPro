@@ -6,7 +6,8 @@ from netCDF4 import Dataset
 
 import writeData
 import tripexLib as trLib
-
+import matplotlib.pyplot as plt
+import readRadarInfo as rdInfo
 
 #input File Path
 path = argv[1]
@@ -27,7 +28,12 @@ timeTolerance = argv[9]
 dateName = str(year)+str(month)+str(day)
 endTimeRef = beguinTimeRef + 1
 start = pd.datetime(year, month, day,beguinTimeRef, 0, 0)
-end = pd.datetime(year, month, day, endTimeRef, 0, 0)
+
+if endTimeRef == 24: 
+   end = pd.datetime(year, month, day, 23, 59, 59) 
+else:
+   end = pd.datetime(year, month, day, endTimeRef, 0, 0)
+
 timeRef = pd.date_range(start, end, freq=timeFreq)
 timeRefUnix = np.array(timeRef,float)
 usedIndexTime = np.ones((len(timeRef)))*np.nan
@@ -71,8 +77,8 @@ varNameOutput = ('_').join([varFinalName, radar])
 
 
 #Files to process
-fileList = trLib.getFileList(path, dateName,
-			    beguinTimeRef, radar)
+fileList = rdInfo.getFileList(radar, year, month,
+                             day, beguinTimeRef)
 
 
 #fileList = glob.glob(('/').join([path, prefix+dateName+str(beguinTimeRef)+'*.nc']))
@@ -93,66 +99,97 @@ fileList = trLib.getFileList(path, dateName,
 #varResTimeRangeEmpty = trLib.getEmptyMatrix(len(rangeRef), len(timeRef))
 #-----------------------------------
 
-for radarFile in fileList:
+#for radarFile in fileList:
 
-   #it opens the file 
-   print radarFile
-   rootgrp = Dataset(radarFile, 'r')
+#it opens the file 
+radarFile = fileList[0]
+print radarFile
+rootgrp = Dataset(radarFile, 'r')
      
-   epoch = trLib.getEpochTime(rootgrp, radar)
-   timesW = rootgrp.variables['time'][:]
+epoch = trLib.getEpochTime(rootgrp, radar)
+timesW = rootgrp.variables['time'][:]
   
-   #timesW = timesWAtt[:]
-   humamTimeW = epoch + pd.to_timedelta(timesW, unit='S')
+#timesW = timesWAtt[:]
+humamTimeW = epoch + pd.to_timedelta(timesW, unit='S')
     
-   #it gets the range and corrects for the reference height
-   ranges =rootgrp.variables['range'][:] + rangeGateOffSet  
+#it gets the range and corrects for the reference height
+ranges =rootgrp.variables['range'][:] + rangeGateOffSet  
     
-   #it gets desireble variable 
-   var = rootgrp.variables[variableName][:]
+#it gets desireble variable 
+var = rootgrp.variables[variableName][:]
    #Ka version ------------
    #if radar == 'Ka': 
    #   var = np.log10(var)
    #-----------------------
-   if radar == 'W':
-      var[var==-999.] = np.nan 
-   if radar == 'X' and varFinalName == 'Ze':
-      var[var==-32] = np.nan
-   var = np.ma.masked_invalid(var)
+if radar == 'W':
+   var[var==-999.] = np.nan 
+if radar == 'X' and varFinalName == 'Ze':
+   var[var==-32] = np.nan
+var = np.ma.masked_invalid(var)
     
-   rootgrp.close()
-    
-   ##Nearest in time -------
-   varData = pd.DataFrame(index=humamTimeW, columns=ranges, data=var)
-   varData['times'] = humamTimeW
-   varData = varData.drop_duplicates(subset=['times'])
+rootgrp.close()
 
-   timeIndexList = trLib.getIndexList(varData, timeRef, timeTolerance)
+
+#X,Y= np.meshgrid(timesW, ranges)
+#dataX = np.ma.masked_invalid(var)
+#plt.figure(figsize=(15,6))
+#plt.title('X Band', fontsize=18)
+#plt.ylabel('height $[m]$',fontsize=18)
+#plt.pcolormesh(X, Y, dataX.transpose(), cmap='jet', vmin=-35, vmax=25)
+#plt.colorbar()
+#plt.ylim(0,12000)
+#plt.show()
+
+
+
+   
+   ##Nearest in time -------
+varData = pd.DataFrame(index=humamTimeW, columns=ranges, data=var)
+varData['times'] = humamTimeW
+varData = varData.sort_values(by=['times'], ascending=[True])
+varData = varData.drop_duplicates(subset=['times'])
+
+timeIndexList = trLib.getIndexList(varData, timeRef, timeTolerance)
  
    #empty data frame
-   emptyDataFrame = pd.DataFrame(index=timeRef, columns=varData.columns)   
-   resampledTime = trLib.getResampledDataPd(emptyDataFrame, varData,
+emptyDataFrame = pd.DataFrame(index=timeRef, columns=varData.columns)   
+resampledTime = trLib.getResampledDataPd(emptyDataFrame, varData,
                                            timeIndexList)
-   timeDeviation = trLib.getDeviationPd(timeRef, resampledTime, timeTolerance)
+timeDeviation = trLib.getDeviationPd(timeRef, resampledTime, timeTolerance)
 
-   del resampledTime['times']
+del resampledTime['times']
 
    #it replaces original resampledTime with resampledTime transposed
-   resampledTime = resampledTime.T 
+resampledTime = resampledTime.T 
    #-----------------------
 
+print resampledTime.shape
+X,Y= np.meshgrid(timeRefUnix, ranges)
+dataX = np.ma.masked_invalid(resampledTime.astype(np.float32))
+#plt.figure(figsize=(15,6))
+plt.title('X Band', fontsize=18)
+plt.ylabel('height $[m]$',fontsize=18)
+plt.pcolormesh(X, Y, dataX, cmap='jet', vmin=-35, vmax=25)
+plt.colorbar()
+plt.ylim(0,12000)
+plt.show()
 
-   ##Nearest in range -----
-   resampledTime['ranges']=ranges
 
-   rangeIndexList = trLib.getIndexList(resampledTime, rangeRef, rangeTolerance)
-   emptyDataFrame = pd.DataFrame(index=rangeRef, columns=resampledTime.columns)
+
+
+
+
+  ##Nearest in range -----
+resampledTime['ranges']=ranges
+
+rangeIndexList = trLib.getIndexList(resampledTime, rangeRef, rangeTolerance)
+emptyDataFrame = pd.DataFrame(index=rangeRef, columns=resampledTime.columns)
    
-   resampledTimeRange = trLib.getResampledDataPd(emptyDataFrame, resampledTime,
+resampledTimeRange = trLib.getResampledDataPd(emptyDataFrame, resampledTime,
                                                 rangeIndexList) 
  
-   rangeDeviation = trLib.getDeviationPd(rangeRef, resampledTimeRange)
-   del resampledTimeRange['ranges']  
+rangeDeviation = trLib.getDeviationPd(rangeRef, resampledTimeRange)
+del resampledTimeRange['ranges']  
 
    #-----------------------
 

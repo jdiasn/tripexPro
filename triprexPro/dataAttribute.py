@@ -58,7 +58,7 @@ def variableAttribute(variable, varName, radar):
  
    if varName == 'LDR':
       long_name = radar+' band Linear De-Polarization Ratio'
-      units = 'm dB'
+      units = 'dB'
     
    if varName == 'delta_altitude':
       long_name = radar+' band vertical distance of the original range resolution to the vertical grid (var:altitude) used to resample the data'

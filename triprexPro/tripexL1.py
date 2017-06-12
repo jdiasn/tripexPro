@@ -6,7 +6,7 @@ from netCDF4 import Dataset
 
 import writeData
 import tripexLib as trLib
-
+import readRadarInfo as rdInfo
 
 #input File Path
 path = argv[1]
@@ -17,17 +17,26 @@ prefix = argv[3]
 #-----------------------------
 
 #--Time Definitions-----------
-year = int(argv[4])
-month = int(argv[5])
-day = int(argv[6])
-beguinTimeRef = int(argv[7])
+yearStr = argv[4]
+year = int(yearStr)
+monthStr = argv[5]
+month = int(monthStr)
+dayStr = argv[6]
+day = int(dayStr)
+beguinTimeRefStr = argv[7] 
+beguinTimeRef = int(beguinTimeRefStr)
 timeFreq = argv[8]
 timeTolerance = argv[9]
 
-dateName = str(year)+str(month)+str(day)
+dateName = yearStr + monthStr + dayStr
 endTimeRef = beguinTimeRef + 1
 start = pd.datetime(year, month, day,beguinTimeRef, 0, 0)
-end = pd.datetime(year, month, day, endTimeRef, 0, 0)
+
+if endTimeRef == 24:
+   end = pd.datetime(year, month, day, 23, 59, 59)
+else:
+   end = pd.datetime(year, month, day, endTimeRef, 0, 0)
+
 timeRef = pd.date_range(start, end, freq=timeFreq)
 timeRefUnix = np.array(timeRef,float)
 usedIndexTime = np.ones((len(timeRef)))*np.nan
@@ -50,7 +59,7 @@ variableName = argv[16]
 
 #output File Definitions
 outPutFile = ('_').join([prefix, dateName,
-                       str(beguinTimeRef)+'.nc'])
+                       beguinTimeRefStr+'.nc'])
 outPutFilePath = ('/').join([outputPath, outPutFile])
 print outPutFilePath
 
@@ -75,15 +84,16 @@ else:
 
 varNameOutput = ('_').join([varFinalName, radar])
 
-
+#--------------------------------------------
 #Files to process
-fileList = trLib.getFileList(path, dateName,
-			    beguinTimeRef, radar)
-
-
-
-if radar == 'Ka':
-   fileList = trLib.checkFileListKa(fileList)
+fileList = rdInfo.getFileList(radar, year, month,
+                             day, beguinTimeRef)
+#fileList = trLib.getFileList(path, dateName,
+#			    beguinTimeRef, radar)
+#
+#if radar == 'Ka':
+#   fileList = trLib.checkFileListKa(fileList)
+#--------------------------------------------
 
 
 varData = pd.DataFrame()
@@ -91,8 +101,12 @@ for radarFile in fileList:
 
    #it opens the file 
    print radarFile
-   rootgrp = Dataset(radarFile, 'r')
+   try:
+      rootgrp = Dataset(radarFile, 'r')
      
+   except:
+      print 'No Data'
+      break
    epoch = trLib.getEpochTime(rootgrp, radar)
    timesW = rootgrp.variables['time'][:]
   
@@ -127,45 +141,57 @@ for radarFile in fileList:
   
    varDataTemp = pd.DataFrame(index=humamTimeW, columns=ranges, data=var)
    varDataTemp['times'] = humamTimeW 
+   varDataTemp = varDataTemp.sort_values(by=['times'], ascending=[True])
    varDataTemp = varDataTemp.drop_duplicates(subset=['times'])
 
    varData=varData.append(varDataTemp) 
    rootgrp.close()
 
+try:
+   #resample in time
+   timeIndexList = trLib.getIndexList(varData, timeRef, timeTolerance)
+   emptyDataFrame = pd.DataFrame(index=timeRef, columns=varData.columns)
+   resampledTime = trLib.getResampledDataPd(emptyDataFrame, varData, timeIndexList)
+   timeDeviation = trLib.getDeviationPd(timeRef, resampledTime, timeTolerance)
+   del resampledTime['times']
+   resampledTime = resampledTime.T
 
-#resample in time
-timeIndexList = trLib.getIndexList(varData, timeRef, timeTolerance)
-emptyDataFrame = pd.DataFrame(index=timeRef, columns=varData.columns)
-resampledTime = trLib.getResampledDataPd(emptyDataFrame, varData, timeIndexList)
-timeDeviation = trLib.getDeviationPd(timeRef, resampledTime, timeTolerance)
-del resampledTime['times']
-resampledTime = resampledTime.T
+except:
+   print 'No Times'
 
-#resample in range
-resampledTime['ranges']=ranges
-rangeIndexList = trLib.getIndexList(resampledTime, rangeRef, rangeTolerance)
-emptyDataFrame = pd.DataFrame(index=rangeRef, columns=resampledTime.columns)
-resampledTimeRange = trLib.getResampledDataPd(emptyDataFrame, resampledTime,
+try:
+   #resample in range
+   resampledTime['ranges']=ranges
+   rangeIndexList = trLib.getIndexList(resampledTime, rangeRef, rangeTolerance)
+   emptyDataFrame = pd.DataFrame(index=rangeRef, columns=resampledTime.columns)
+   resampledTimeRange = trLib.getResampledDataPd(emptyDataFrame, resampledTime,
                                              rangeIndexList) 
-rangeDeviation = trLib.getDeviationPd(rangeRef, resampledTimeRange)
-del resampledTimeRange['ranges'] 
+   rangeDeviation = trLib.getDeviationPd(rangeRef, resampledTimeRange)
+   del resampledTimeRange['ranges'] 
 
-  
-rootgrpOut = writeData.createNetCdf(outPutFilePath)
-time_ref = writeData.createTimeDimension(rootgrpOut, timeRefUnix)
-range_ref = writeData.createRangeDimension(rootgrpOut, rangeRef)
+except:
+   print 'No Ranges'
 
-timeDeviation = np.array(timeDeviation.astype(np.float32))
-time_dev = writeData.createDeviation(rootgrpOut, timeDeviation,
+try:  
+   rootgrpOut = writeData.createNetCdf(outPutFilePath)
+   time_ref = writeData.createTimeDimension(rootgrpOut, timeRefUnix)
+   range_ref = writeData.createRangeDimension(rootgrpOut, rangeRef)
+
+   timeDeviation = np.array(timeDeviation.astype(np.float32))
+   time_dev = writeData.createDeviation(rootgrpOut, timeDeviation,
                                     'delta_time', radar)
 
-rangeDeviation = np.array(rangeDeviation.astype(np.float32))
-range_dev = writeData.createDeviation(rootgrpOut, rangeDeviation,
+   rangeDeviation = np.array(rangeDeviation.astype(np.float32))
+   range_dev = writeData.createDeviation(rootgrpOut, rangeDeviation,
                                           'delta_altitude', radar)
 
-resampledTimeRange = np.array(resampledTimeRange.T.astype(np.float32))
-var_resampled = writeData.createVariable(rootgrpOut, resampledTimeRange,
+   resampledTimeRange = np.array(resampledTimeRange.T.astype(np.float32))
+   var_resampled = writeData.createVariable(rootgrpOut, resampledTimeRange,
                                         varFinalName, varNameOutput, radar)
+
+except:
+   print 'No Data To Write :('
+
 rootgrpOut.close()
 
 print 'Done %s'%(varNameOutput)
