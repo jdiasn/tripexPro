@@ -58,12 +58,15 @@ def getFileList(radar, year, month, day, beguinTimeRef):
       tempFrame = tempFrame[tempFrame.month==month]
       tempFrame = tempFrame[tempFrame.day==day]
 
-   #elif radar == 'W':
-      #fazer a busca com tempo em segundos
-      #W band
-      #tempFrame = readData[readData.elv==90.]
-      #tempFrame = tempFrame[tempFrame.humanDateMin>=start]
-      #tempFrame = tempFrame[tempFrame.humanDateMax<end]
+   elif radar == 'W':
+     #fazer a busca com tempo em segundos
+     #W band
+     tempFrame = readData[readData.elv==90.]
+     tempFrame = tempFrame[tempFrame.humanDateMin>=start]
+     tempFrame = tempFrame[tempFrame.humanDateMax<end]
+     tempFrame = tempFrame[tempFrame.day==day]
+     tempFrame = tempFrame[tempFrame.hourMin==beguinTimeRef]
+
 
    else:
      tempFrame = readData[readData.elv==90.]
@@ -71,6 +74,14 @@ def getFileList(radar, year, month, day, beguinTimeRef):
      tempFrame = tempFrame[tempFrame.month==month]
      tempFrame = tempFrame[tempFrame.day==day]
      tempFrame = tempFrame[tempFrame.hourMin==beguinTimeRef]
+
+     if len(tempFrame)==0:
+        tempFrame = readData[readData.elv==90.]
+        tempFrame = tempFrame[tempFrame.year==year]
+        tempFrame = tempFrame[tempFrame.month==month]
+        tempFrame = tempFrame[tempFrame.day==day]
+        tempFrame = tempFrame[tempFrame.hourMin<=beguinTimeRef]
+        empFrame = tempFrame[tempFrame.hourMax>=beguinTimeRef]
 
 
    finalFileList = tempFrame.filePath.values
