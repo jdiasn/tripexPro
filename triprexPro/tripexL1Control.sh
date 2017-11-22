@@ -28,8 +28,8 @@ rangeTolerance=17
 #
 radar='X'
 rangeOffSet=-15.5
-#variables=('Ze' 'vd')
-variables=('Ze')
+variables=('Ze' 'vd')
+#variables=('Ze')
 for variable in ${variables[@]}
 do
 python tripexL1.py $inputPath $outputPath $prefix $year $month \

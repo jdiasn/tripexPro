@@ -130,7 +130,7 @@ def getResampledDataPd(emptyDataFrame, dataDataFrame, indexList):
 
 def getDeviationPd(reference, resampledData, tolerance=None):
 
-   if type(reference) == pd.tseries.index.DatetimeIndex:
+   if type(reference) == pd.DatetimeIndex:
 
       deviation = reference.second-pd.to_datetime(list(resampledData.times)).second
       resampledData['delta_time']=deviation

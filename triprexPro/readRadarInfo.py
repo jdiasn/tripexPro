@@ -42,6 +42,8 @@ def getFileList(radar, year, month, day, beguinTimeRef):
    readData = readData.sort_values(by=['filePath'], ascending=[True])
    humanDateMin=pd.to_timedelta(readData.min_time, unit='s')+epoch
    humanDateMax=pd.to_timedelta(readData.max_time, unit='s')+epoch
+#  humanDateMin=pd.to_datetime(humanDateMin)
+#  humanDateMax=pd.to_datetime(humanDateMax)
    readData['humanDateMin']=humanDateMin
    readData['humanDateMax']=humanDateMax
    readData['year']=humanDateMin.dt.year
