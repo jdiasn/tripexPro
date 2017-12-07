@@ -49,6 +49,7 @@ def variableAttribute(variable, varName, radar):
 
    if varName == 'Ze' and radar == 'Ka':
       offset_correction = 'The Joyrad-35 reflectivities obtained from the mmclx files have to be corrected: 1) An offset of 2dB has to be added in order to compensate for the finite receiver beamwidth loss. 2) A recently discovered offset of additional 3dB has to be added to compensate for some errors in the DSP processing. For further information, contact Metek (bauer@metek.de).'
+      variable.offset_correction = offset_correction     
 
    if varName == 'v':
       long_name = radar+' band Mean Doppler velocity (Sign convention: Negative when moving towards the radar) '
