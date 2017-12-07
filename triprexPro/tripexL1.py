@@ -173,9 +173,6 @@ try:
 except:
    print 'No Ranges'
 
-if varNameOutput == 'Ze_'+radar:
-   resampledTimeRange = resampledTimeRange + zeOffset
-
 timeRefUnix = timeRefUnix/10.**9
 
 try:  
@@ -190,6 +187,9 @@ try:
    rangeDeviation = np.array(rangeDeviation.astype(np.float32))
    range_dev = writeData.createDeviation(rootgrpOut, rangeDeviation,
                                           'delta_altitude', radar)
+
+   if varNameOutput == 'Ze_'+radar:
+      resampledTimeRange = resampledTimeRange + zeOffset
 
    resampledTimeRange = np.array(resampledTimeRange.T.astype(np.float32))
    var_resampled = writeData.createVariable(rootgrpOut, resampledTimeRange,
