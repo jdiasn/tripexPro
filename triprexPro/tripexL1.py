@@ -55,6 +55,7 @@ usedIndexRange = np.ones((len(rangeRef)))*np.nan
 radar = argv[14]
 rangeGateOffSet = float(argv[15]) 
 variableName = argv[16] 
+zeOffset = float(argv[17])
 #-----------------------------
 
 #output File Definitions
@@ -171,6 +172,9 @@ try:
 
 except:
    print 'No Ranges'
+
+if varNameOutput == 'Ze_'+radar:
+   resampledTimeRange = resampledTimeRange + zeOffset
 
 try:  
    rootgrpOut = writeData.createNetCdf(outPutFilePath)
