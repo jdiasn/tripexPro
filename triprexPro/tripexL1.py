@@ -121,6 +121,12 @@ for radarFile in fileList:
    var = rootgrp.variables[variableName][:]
 
    #Ka version ------------------------------
+   if varFinalName == 'Ze' and radar == 'W':
+      var = 10*np.log10(var)
+      print varFinalName, radar
+   else:
+      pass
+
    if varFinalName == 'Ze' and radar == 'Ka':
       var = 10*np.log10(var)
    else:
