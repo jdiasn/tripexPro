@@ -176,6 +176,8 @@ except:
 if varNameOutput == 'Ze_'+radar:
    resampledTimeRange = resampledTimeRange + zeOffset
 
+timeRefUnix = timeRefUnix/10.**9
+
 try:  
    rootgrpOut = writeData.createNetCdf(outPutFilePath)
    time_ref = writeData.createTimeDimension(rootgrpOut, timeRefUnix)
