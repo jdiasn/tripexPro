@@ -83,7 +83,7 @@ def getFileList(radar, year, month, day, beguinTimeRef):
         tempFrame = tempFrame[tempFrame.month==month]
         tempFrame = tempFrame[tempFrame.day==day]
         tempFrame = tempFrame[tempFrame.hourMin<=beguinTimeRef]
-        empFrame = tempFrame[tempFrame.hourMax>=beguinTimeRef]
+        tempFrame = tempFrame[tempFrame.hourMax>=beguinTimeRef]
 
 
    finalFileList = tempFrame.filePath.values
