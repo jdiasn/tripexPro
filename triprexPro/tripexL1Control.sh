@@ -4,21 +4,21 @@
 #
 #--File Definition------------
 inputPath='/home/jdias/Projects/radarData'
-outputPath='/home/jdias/Projects/radarDataResampled'
+outputPath='/home/jdias/Pictures/2015112419_1729_3rd/data'
 prefix='tripex_3fr_L1_mom'
 #-----------------------------
 
 #--Time Definition------------
 year=2015
 month=11
-day=11
-beguinTime=23
+day=24
+beguinTime=19
 timeFreq=4s
 timeTolerance=2s
 #-----------------------------
 
 #--Range Definition
-beguinRangeRef=0
+beguinRangeRef=100
 endRangeRef=12000
 rangeFreq=30
 rangeTolerance=17
