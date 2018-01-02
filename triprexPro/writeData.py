@@ -1,8 +1,21 @@
 from netCDF4 import Dataset
-import dataAttribute
+import dataAttributeL1
+import dataAttributeL2
 import numpy as np
 
-def createNetCdf(outPutFilePath):
+def defineAttr(prefix):
+   
+   if prefix == 'tripex_3fr_L1_mom':
+      dataAttribute = dataAttributeL1 
+
+   if prefix == 'tripex_3fr_L2_mom':
+      dataAttribute = dataAttributeL2 
+
+   return dataAttribute
+
+def createNetCdf(outPutFilePath, prefix):
+
+   dataAttribute = defineAttr(prefix)
 
    try:
       rootgrpOut = Dataset(outPutFilePath, 'a', format='NETCDF4')
@@ -15,7 +28,9 @@ def createNetCdf(outPutFilePath):
    return rootgrpOut
 
 
-def createTimeDimension(rootgrpOut, timeRef):
+def createTimeDimension(rootgrpOut, timeRef, prefix):
+
+   dataAttribute = defineAttr(prefix)
 
    try:
       rootgrpOut.createDimension('time', None)
@@ -28,7 +43,9 @@ def createTimeDimension(rootgrpOut, timeRef):
       return None
 
 
-def createRangeDimension(rootgrpOut, rangeRef):
+def createRangeDimension(rootgrpOut, rangeRef, prefix):
+
+   dataAttribute = defineAttr(prefix)
 
    try:
       rootgrpOut.createDimension('altitude', len(rangeRef))
@@ -42,7 +59,9 @@ def createRangeDimension(rootgrpOut, rangeRef):
       return None
 
 
-def createVariable(rootgrpOut, variable, varName, varNameOutput, radar):
+def createVariable(rootgrpOut, variable, varName, varNameOutput, radar, prefix):
+
+   dataAttribute = defineAttr(prefix)
 
    try:
     
@@ -59,7 +78,9 @@ def createVariable(rootgrpOut, variable, varName, varNameOutput, radar):
       return None
 
 
-def createDeviation(rootgrpOut, variable, varName, radar):
+def createDeviation(rootgrpOut, variable, varName, radar, prefix):
+
+   dataAttribute = defineAttr(prefix)
 
    dimension = varName.split('_')[-1]
    varNameOutput = '_'.join([varName, radar])
