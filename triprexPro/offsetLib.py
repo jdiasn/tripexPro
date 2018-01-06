@@ -88,7 +88,14 @@ def getOffset(dataFrame, dataFrameRef,
         offset = np.mean(Ze_Diff)
         stdDiff = np.std(Ze_Diff)
         stdZe_Ref = np.std(Ze_Ref)
-    
+   
+        if offset is np.ma.masked:
+       		 offset = np.nan
+        if stdDiff is np.ma.masked:
+	         stdDiff = np.nan    
+        if stdZe_Ref is np.ma.masked:
+        	 stdZe_Ref = np.nan
+ 
         invalidPoints = Ze_Diff[np.isnan(Ze_Diff)].shape[0]
         totalPoints = Ze_Diff.shape[0]*Ze_Diff.shape[1]
         validPoints = totalPoints - invalidPoints
