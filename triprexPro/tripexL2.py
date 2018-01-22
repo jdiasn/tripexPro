@@ -97,20 +97,31 @@ dataFrameListAtt = attLib.applyAttCorr(dataFrameList*1, interpAttDataList, varia
 #offset 
 dataFrameListMasked = attLib.applyAttCorr(dataFrameList*1, interpAttDataList, 
 					  variable)
-dataFrameListMasked = offLib.getMaskedDF(dataFrameListMasked, variable, 
-                                         Ze_KaMax, Ze_KaMin, heightThreshold)
-   
+  
 timeWindow = pd.to_timedelta( timeWindowLenght, unit='m')
 timesBegin = pd.date_range(start, end, freq='1min')
 timesEnd = pd.date_range(start+timeWindow, end+timeWindow, freq='1min')
 
-dataFrame = dataFrameListMasked[variable.keys().index('Ze_X')]
-dataFrameRef = dataFrameListMasked[variable.keys().index('Ze_Ka')]
+#offset X Ka
+offsetPairXKa = ['Ze_X','Ze_Ka']
+dataFrameListMaskedXKa = offLib.getMaskedDF(dataFrameListMasked*1, variable, 
+                                            0, -12, heightThreshold,
+                                            offsetPairXKa)
+
+dataFrame = dataFrameListMaskedXKa[offsetPairXKa.index('Ze_X')]
+dataFrameRef = dataFrameListMaskedXKa[offsetPairXKa.index('Ze_Ka')]
 parametersXKa= offLib.getOffset(dataFrame, dataFrameRef,
                                 timesBegin, timesEnd)
+
+
+#offset Ka W
+offsetPairKaW = ['Ze_Ka','Ze_W']
+dataFrameListMaskedKaW = offLib.getMaskedDF(dataFrameListMasked*1, variable, 
+                                            -10, -30, heightThreshold,
+                                            offsetPairKaW)
     
-dataFrame = dataFrameListMasked[variable.keys().index('Ze_W')]
-dataFrameRef = dataFrameListMasked[variable.keys().index('Ze_Ka')]
+dataFrame = dataFrameListMaskedKaW[offsetPairKaW.index('Ze_W')]
+dataFrameRef = dataFrameListMaskedKaW[offsetPairKaW.index('Ze_Ka')]
 parametersWKa= offLib.getOffset(dataFrame, dataFrameRef,
                                 timesBegin, timesEnd)
 

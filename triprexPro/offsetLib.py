@@ -47,7 +47,8 @@ def getDataFrameList(fileList, varNames):
 
 
 def getMaskedDF(dataFrameList, variable,
-                  ZeKaMax, ZeKaMin, heightMin):
+                ZeKaMax, ZeKaMin, heightMin,
+                offsetPair):
 
     varNames = variable.keys()
     kaIndex = varNames.index('Ze_Ka')
@@ -56,14 +57,20 @@ def getMaskedDF(dataFrameList, variable,
     
     cloudKa = dataFrameList[kaIndex]/dataFrameList[kaIndex]
 
-    for i, varName in enumerate(varNames):
+    for varNameCorr in offsetPair:
         
-        dataFrameList[i][cloudKa!=1]=np.nan
-        dataFrameList[i].loc[:,dataFrameList[i].columns < heightMin]=np.nan
-        dataFrameList[i][kaThresholdMax]=np.nan
-        dataFrameList[i][kaThresholdMin]=np.nan
+        varIndex = varNames.index(varNameCorr)
+	
+        dataFrameList[varIndex][cloudKa!=1]=np.nan
+        dataFrameList[varIndex].loc[:,dataFrameList[varIndex].columns 
+                                    < heightMin]=np.nan
+        dataFrameList[varIndex][kaThresholdMax]=np.nan
+        dataFrameList[varIndex][kaThresholdMin]=np.nan
         
-    return dataFrameList
+    var0 = varNames.index(offsetPair[0])
+    var1 = varNames.index(offsetPair[1])
+
+    return dataFrameList[var0], dataFrameList[var1]
 
 
 def getOffset(dataFrame, dataFrameRef,
