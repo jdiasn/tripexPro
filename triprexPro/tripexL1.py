@@ -13,7 +13,7 @@ path = argv[1]
 #output File Path
 outputPath = argv[2]
 #prefix
-prefix = argv[3]
+prefixL1 = argv[3]
 #-----------------------------
 
 #--Time Definitions-----------
@@ -59,7 +59,7 @@ zeOffset = float(argv[17])
 #-----------------------------
 
 #output File Definitions
-outPutFile = ('_').join([prefix, dateName,
+outPutFile = ('_').join([prefixL1, dateName,
                        beguinTimeRefStr+'.nc'])
 outPutFilePath = ('/').join([outputPath, outPutFile])
 print outPutFilePath
@@ -182,24 +182,24 @@ except:
 timeRefUnix = timeRefUnix/10.**9
 
 try:  
-   rootgrpOut = writeData.createNetCdf(outPutFilePath)
-   time_ref = writeData.createTimeDimension(rootgrpOut, timeRefUnix)
-   range_ref = writeData.createRangeDimension(rootgrpOut, rangeRef)
+   rootgrpOut = writeData.createNetCdf(outPutFilePath, prefixL1)
+   time_ref = writeData.createTimeDimension(rootgrpOut, timeRefUnix, prefixL1)
+   range_ref = writeData.createRangeDimension(rootgrpOut, rangeRef, prefixL1)
 
    timeDeviation = np.array(timeDeviation.astype(np.float32))
    time_dev = writeData.createDeviation(rootgrpOut, timeDeviation,
-                                    'delta_time', radar)
+                                    'delta_time', radar, prefixL1)
 
    rangeDeviation = np.array(rangeDeviation.astype(np.float32))
    range_dev = writeData.createDeviation(rootgrpOut, rangeDeviation,
-                                          'delta_altitude', radar)
+                                          'delta_altitude', radar, prefixL1)
 
    if varNameOutput == 'Ze_'+radar:
       resampledTimeRange = resampledTimeRange + zeOffset
 
    resampledTimeRange = np.array(resampledTimeRange.T.astype(np.float32))
    var_resampled = writeData.createVariable(rootgrpOut, resampledTimeRange,
-                                        varFinalName, varNameOutput, radar)
+                                        varFinalName, varNameOutput, radar, prefixL1)
 
 except:
    print 'No Data To Write :('
