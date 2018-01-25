@@ -147,6 +147,30 @@ dataFrameListAtt[varNames.index('Ze_X')] = \
 
 #-----------------------------
 
+#--Copy data from L1----------
+
+data = None
+variableToCopy={'v_X':{'data':data},
+                'v_Ka':{'data':data},
+                'SW_Ka':{'data':data},
+                'LDR_Ka':{'data':data},
+                'v_W':{'data':data},
+                'SW_W':{'data':data},
+                }
+
+dataCopiedDFList, epoch = offLib.getDataFrameList(fileList, 
+                                                  variableToCopy.keys())
+
+
+for variable in variableToCopy.keys():
+    
+    varNamesToCopy = variableToCopy.keys()
+    variableToCopy[variable]['data'] = \
+   	 dataCopiedDFList[varNamesToCopy.index(variable)]
+
+#-----------------------------
+
+
 #--Write data-----------------
 timeWindowWrite = pd.to_timedelta(3599, unit='s')
 timesBeginWrite = pd.date_range(start, end, freq='60min')
@@ -190,7 +214,19 @@ for indexWrite, timeStart in enumerate(timesBeginWrite):
         var_Written = writeData.createVariable(rootgrpOut, dataToWrite,
                                                varFinalName, varNameOut,
                                                radar, prefixL2)
-    
+
+    #It writes the data from L1 in L2 file
+    for varNameOut in variableToCopy.keys():
+        varFinalName, radar=varNameOut.split('_')
+        
+        dataDF = variableToCopy[varNameOut]['data']
+        dataToWrite = np.array(dataDF[timeStart:timeEnd].astype(np.float32))
+        var_Written = writeData.createVariable(rootgrpOut, dataToWrite,
+                                           varFinalName, varNameOut,
+                                           radar, prefixL2)
+        
+
+	 
 rootgrpOut.close()
 
 

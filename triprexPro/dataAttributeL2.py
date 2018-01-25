@@ -63,6 +63,27 @@ def variableAttribute(variable, varName, radar):
       finalSource = 'Offset routine' 
       units = '--'
     
+   if varName == 'v':
+      long_name = radar+' band Mean Doppler velocity (Sign convention: Negative when moving towards the radar) '
+      units = 'm s-1'
+      variable.Nyquist_velocity = velocityLim
+
+   if varName == 'SW':
+      long_name = radar+' band Spectrum Width'
+      units = 'm s-1'
+ 
+   if varName == 'LDR':
+      long_name = radar+' band Linear De-Polarization Ratio'
+      units = 'dB'
+    
+   if varName == 'delta_altitude':
+      long_name = radar+' band vertical distance of the original range resolution to the vertical grid (var:altitude) used to resample the data'
+      units = 'm'
+
+   if varName == 'delta_time':
+      long_name = radar+' band temporal difference between the original time resolution and the time vector used to resample the data'
+      units = 's'
+  
      
    variable.long_name = long_name
    variable.units = units
