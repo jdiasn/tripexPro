@@ -62,6 +62,11 @@ def variableAttribute(variable, varName, radar):
       long_name = 'Number of points used to calculate the '+radar+' band offset.'
       finalSource = 'Offset routine' 
       units = '--'
+
+   if varName == 'Temperature':
+      long_name = 'Temperature from CLOUDNET'
+      finalSource = 'Temperature from CLOUDNET was interpolated to radar grid'
+      units = 'C'
     
    if varName == 'v':
       long_name = radar+' band Mean Doppler velocity (Sign convention: Negative when moving towards the radar) '

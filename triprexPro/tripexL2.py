@@ -76,7 +76,7 @@ varNames = variable.keys()
 #-----------------------------
 
 #--Attenuation correction-----
-results, time, height_M = attLib.getAtmAttPantra(cloudNetFilePath, radarFreqs)
+results, time, height_M, temp = attLib.getAtmAttPantra(cloudNetFilePath, radarFreqs)
 
 interpAttDataList, qualityFlagList = \
    attLib.getInterpQualFlagList(results, time, timeRef, 
@@ -147,8 +147,24 @@ dataFrameListAtt[varNames.index('Ze_X')] = \
 
 #-----------------------------
 
-#--Copy data from L1----------
 
+#--Copy temp from CLOUDNET----
+tempCel = temp - 273.15
+resampledTemp = attLib.getResampledTimeRange(rangeRef, rangeTolerance, timeRef,
+                                             time, timeTolerance, tempCel, year,
+                                             month, day, height_M)
+
+interpTemp, qualityFlagTemp = attLib.getInterpData(time, timeRef, height_M,
+                                                   resampledTemp, tempCel,
+                                                   rangeRef)
+
+interpTempDF = pd.DataFrame(index=timeRef, columns=rangeRef, 
+                            data=interpTemp.T)
+
+#-----------------------------
+
+
+#--Copy data from L1----------
 data = None
 variableToCopy={'v_X':{'data':data},
                 'v_Ka':{'data':data},
@@ -188,6 +204,7 @@ variableOutPut={'Ze_X':{'data':dataFrameListAtt[varNames.index('Ze_X')]},
                 'Offset_W':{'data':offsetWKaDF},
                 'ValidData_X':{'data':validPointXKaDF},
                 'ValidData_Ka':{'data':validPointWKaDF},
+                'Temperature_Cl':{'data':interpTempDF}
                }
 
 for indexWrite, timeStart in enumerate(timesBeginWrite):
