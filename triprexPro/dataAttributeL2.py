@@ -125,6 +125,11 @@ def variableAttribute(variable, varName, radar):
       finalSource = 'Accumulated rain fall retrieved by Pluvio'
       units = 'mm'
 
+   if varName == 'rainFallRate':
+      long_name = 'Rain fall rate'
+      finalSource = 'Rain fall rate retrieved by Pluvio'
+      units = 'mm -h'
+
    if varName == 'CldBaseHeight':
       long_name = 'Cloud base height'
       finalSource = 'Cloud base height retrieved by Ceilometer'

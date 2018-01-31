@@ -217,6 +217,9 @@ resampledPluvDF = extLib.getDataPluvio(year, month, day, timeRef,
 accRainFallDF = pd.DataFrame(index=resampledPluvDF.index, 
                              data=resampledPluvDF['totAccumNRT'])
 
+rainFallRateDF = pd.DataFrame(index=resampledPluvDF.index, 
+                              data=resampledPluvDF['accumNRT'])
+ 
 resampCldBasHeiDF = extLib.getDataCeilo(year, month, day, timeRef,
                                  timeTolerance)
 
@@ -226,6 +229,7 @@ externalData = {'IWV_Rd':{'data':iwvDF},
 		'LWP_Rd':{'data':lwpDF},
 		'LWPFlag_Rd':{'data':lwpFlagDF},
 		'AccRainFall_Pl':{'data':accRainFallDF},
+		'rainFallRate_Pl':{'data':rainFallRateDF},
                 'CldBaseHeight_Cei':{'data':resampCldBasHeiDF}
 }
 
