@@ -164,7 +164,7 @@ def getAtmAttPantra(cloudNetFilePath, radarFreqs):
     pam.createProfile(**pamData)
     pam.runParallelPamtra(radarFreqs, pp_deltaX=1, pp_deltaY=1, pp_deltaF=1, pp_local_workers=8)
 
-    return pam.r, time, height_M, temp
+    return pam.r, time, height_M, temp, relHum, press
 
 
 def getInterpQualFlagList(results, time, timeRef, timeTolerance,

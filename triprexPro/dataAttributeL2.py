@@ -67,6 +67,16 @@ def variableAttribute(variable, varName, radar):
       long_name = 'Temperature from CLOUDNET'
       finalSource = 'Temperature from CLOUDNET was interpolated to radar grid'
       units = 'C'
+
+   if varName == 'Pressure':
+      long_name = 'Pressure from CLOUDNET'
+      finalSource = 'Pressure from CLOUDNET was interpolated to radar grid'
+      units = 'Pa'
+ 
+   if varName == 'RelHum':
+      long_name = 'Relative humidity from CLOUDNET'
+      finalSource = 'Humidity from CLOUDNET was interpolated to radar grid'
+      units = '%'
     
    if varName == 'v':
       long_name = radar+' band Mean Doppler velocity (Sign convention: Negative when moving towards the radar) '
@@ -88,7 +98,38 @@ def variableAttribute(variable, varName, radar):
    if varName == 'delta_time':
       long_name = radar+' band temporal difference between the original time resolution and the time vector used to resample the data'
       units = 's'
-  
+
+ 
+   if varName == 'IWV':
+      long_name = 'Integrated water vapor'
+      finalSource = 'Integrated water vapor retrieved by Microwave Radiometer'
+      units = 'kg m-2'
+
+   if varName == 'IWVFlag':
+      long_name = 'Integrated water vapor quality flag'
+      finalSource = 'Integrated water vapor quality flag'
+      units = ''
+
+   if varName == 'LWP':
+      long_name = 'Liquid water path'
+      finalSource = 'Liquid water path retrieved by Microwave Radiometer'
+      units = 'kg m-2'
+
+   if varName == 'LWPFlag':
+      long_name = 'Liquid water path quality flag'
+      finalSource = 'Liquid water path quality flag'
+      units = ''
+
+   if varName == 'AccRainFall':
+      long_name = 'Accumulated rain fall'
+      finalSource = 'Accumulated rain fall retrieved by Pluvio'
+      units = 'mm'
+
+   if varName == 'CldBaseHeight':
+      long_name = 'Cloud base height'
+      finalSource = 'Cloud base height retrieved by Ceilometer'
+      units = 'm'
+
      
    variable.long_name = long_name
    variable.units = units

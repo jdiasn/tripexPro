@@ -103,3 +103,20 @@ def createDeviation(rootgrpOut, variable, varName, radar, prefix):
    except:
       return None
 
+def create1Dvariable(rootgrpOut, variable, varName, sensor, prefix):
+
+   dataAttribute = defineAttr(prefix)
+   varNameOutput = varName   
+
+   try:
+      var_nearest = rootgrpOut.createVariable(varNameOutput, np.float32,
+                                           ('time'), fill_value=np.nan)
+      var_nearest[:] = variable
+      var_nearest = dataAttribute.variableAttribute(var_nearest,
+                                                 varName, sensor)
+      return var_nearest
+
+   except:
+      return None
+  
+

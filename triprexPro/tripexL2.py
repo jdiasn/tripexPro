@@ -4,6 +4,7 @@ import pandas as pd
 from sys import argv
 
 import writeData
+import externalData as extLib
 import offsetLib as offLib
 import attenuationLib as attLib
 
@@ -76,7 +77,8 @@ varNames = variable.keys()
 #-----------------------------
 
 #--Attenuation correction-----
-results, time, height_M, temp = attLib.getAtmAttPantra(cloudNetFilePath, radarFreqs)
+results, time, height_M, temp, relHum, press = \
+   attLib.getAtmAttPantra(cloudNetFilePath, radarFreqs)
 
 interpAttDataList, qualityFlagList = \
    attLib.getInterpQualFlagList(results, time, timeRef, 
@@ -84,8 +86,10 @@ interpAttDataList, qualityFlagList = \
                                 rangeRef, rangeTolerance, 
                                 radarFreqs, year, month, day)
 
-interpAttDataList = attLib.changeAttListOrder(interpAttDataList, variable, radarFreqs)
-qualityFlagList = attLib.changeAttListOrder(qualityFlagList, variable, radarFreqs)
+interpAttDataList = attLib.changeAttListOrder(interpAttDataList,
+                                              variable, radarFreqs)
+qualityFlagList = attLib.changeAttListOrder(qualityFlagList, 
+                                            variable, radarFreqs)
 #-----------------------------
 
 #--Offset correction----------
@@ -164,6 +168,70 @@ interpTempDF = pd.DataFrame(index=timeRef, columns=rangeRef,
 #-----------------------------
 
 
+#--Copy press from CLOUDNET----
+resampledPress = attLib.getResampledTimeRange(rangeRef, rangeTolerance, timeRef,
+                                              time, timeTolerance, press, year,
+                                              month, day, height_M)
+
+interpPress, qualityFlagPress = attLib.getInterpData(time, timeRef, height_M,
+                                                    resampledPress, tempCel,
+                                                    rangeRef)
+
+interpPressDF = pd.DataFrame(index=timeRef, columns=rangeRef, 
+                             data=interpPress.T)
+
+#-----------------------------
+
+
+#--Copy relHum from CLOUDNET----
+resampledRelHum = attLib.getResampledTimeRange(rangeRef, rangeTolerance, timeRef,
+                                               time, timeTolerance, relHum, year,
+                                               month, day, height_M)
+
+interpRelHum, qualityFlagRelHum = attLib.getInterpData(time, timeRef, height_M,
+                                                       resampledPress, relHum,
+                                                       rangeRef)
+
+interpRelHumDF = pd.DataFrame(index=timeRef, columns=rangeRef, 
+                              data=interpRelHum.T)
+
+#-----------------------------
+
+
+#--Copy external data --------
+resampledIWVDF = extLib.getDataRadiometer(year, month, day, timeRef,
+                                          timeTolerance, 'IWV')
+
+iwvDF = pd.DataFrame(index=resampledIWVDF.index, data=resampledIWVDF['IWV'])
+iwvFlagDF = pd.DataFrame(index=resampledIWVDF.index, data=resampledIWVDF['flag'])
+
+resampledLWPDF = extLib.getDataRadiometer(year, month, day, timeRef,
+                                          timeTolerance, 'LWP')
+
+lwpDF = pd.DataFrame(index=resampledLWPDF.index, data=resampledLWPDF['LWP'])
+lwpFlagDF = pd.DataFrame(index=resampledLWPDF.index, data=resampledLWPDF['flag'])
+
+resampledPluvDF = extLib.getDataPluvio(year, month, day, timeRef,
+                                timeTolerance)
+
+accRainFallDF = pd.DataFrame(index=resampledPluvDF.index, 
+                             data=resampledPluvDF['totAccumNRT'])
+
+resampCldBasHeiDF = extLib.getDataCeilo(year, month, day, timeRef,
+                                 timeTolerance)
+
+
+externalData = {'IWV_Rd':{'data':iwvDF},
+		'IWVFlag_Rd':{'data':iwvFlagDF},
+		'LWP_Rd':{'data':lwpDF},
+		'LWPFlag_Rd':{'data':lwpFlagDF},
+		'AccRainFall_Pl':{'data':accRainFallDF},
+                'CldBaseHeight_Cei':{'data':resampCldBasHeiDF}
+}
+
+#-----------------------------
+
+
 #--Copy data from L1----------
 data = None
 variableToCopy={'v_X':{'data':data},
@@ -176,7 +244,6 @@ variableToCopy={'v_X':{'data':data},
 
 dataCopiedDFList, epoch = offLib.getDataFrameList(fileList, 
                                                   variableToCopy.keys())
-
 
 for variable in variableToCopy.keys():
     
@@ -204,7 +271,9 @@ variableOutPut={'Ze_X':{'data':dataFrameListAtt[varNames.index('Ze_X')]},
                 'Offset_W':{'data':offsetWKaDF},
                 'ValidData_X':{'data':validPointXKaDF},
                 'ValidData_Ka':{'data':validPointWKaDF},
-                'Temperature_Cl':{'data':interpTempDF}
+                'Temperature_Cl':{'data':interpTempDF},
+		'RelHum_Cl':{'data':interpRelHumDF},
+		'Pressure_CL':{'data':interpPressDF},
                }
 
 for indexWrite, timeStart in enumerate(timesBeginWrite):
@@ -234,14 +303,23 @@ for indexWrite, timeStart in enumerate(timesBeginWrite):
 
     #It writes the data from L1 in L2 file
     for varNameOut in variableToCopy.keys():
-        varFinalName, radar=varNameOut.split('_')
-        
+
+        varFinalName, radar=varNameOut.split('_')        
         dataDF = variableToCopy[varNameOut]['data']
         dataToWrite = np.array(dataDF[timeStart:timeEnd].astype(np.float32))
         var_Written = writeData.createVariable(rootgrpOut, dataToWrite,
                                            varFinalName, varNameOut,
                                            radar, prefixL2)
         
+
+    for varNameOut in externalData.keys():
+
+	varFinalName, sensor=varNameOut.split('_')        
+        dataDF = externalData[varNameOut]['data']
+        dataToWrite = np.array(dataDF[timeStart:timeEnd].astype(np.float32))
+        var_Written = writeData.create1Dvariable(rootgrpOut, dataToWrite,
+                                               varFinalName, sensor, prefixL2)
+ 
 
 	 
 rootgrpOut.close()
