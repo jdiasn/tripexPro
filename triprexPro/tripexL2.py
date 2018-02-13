@@ -94,6 +94,7 @@ qualityFlagList = attLib.changeAttListOrder(qualityFlagList,
 
 #--Offset correction----------
 dataFrameList, epoch = offLib.getDataFrameList(fileList, variable.keys())
+shiftedTempDF = offLib.getShiftedTemp(interpTempDF)
 
 #Attenuation correction
 dataFrameListAtt = attLib.applyAttCorr(dataFrameList*1, interpAttDataList, variable)
