@@ -173,7 +173,7 @@ def temperatureMask(shiftedTempMaskDF, dataFrameListToMask,
     shiftedTempMaskArr = np.array(shiftedTempMaskDF)
     for variable in variableToMask:
         
-        dataArr = np.array(dataFrameList[variableToMask.index(variable)])
+        dataArr = np.array(dataFrameListToMask[variableToMask.index(variable)])
         maskedData = np.ma.masked_where(shiftedTempMaskArr > 0, dataArr)
         
         maskedDataDF = pd.DataFrame(index=timeRef, columns=rangeRef, data=maskedData)
