@@ -92,6 +92,24 @@ qualityFlagList = attLib.changeAttListOrder(qualityFlagList,
                                             variable, radarFreqs)
 #-----------------------------
 
+
+#--Copy temp from CLOUDNET----
+tempCel = temp - 273.15
+resampledTemp = attLib.getResampledTimeRange(rangeRef, rangeTolerance, timeRef,
+                                             time, timeTolerance, tempCel, year,
+                                             month, day, height_M)
+
+interpTemp, qualityFlagTemp = attLib.getInterpData(time, timeRef, height_M,
+                                                   resampledTemp, tempCel,
+                                                   rangeRef)
+
+interpTempDF = pd.DataFrame(index=timeRef, columns=rangeRef, 
+                            data=interpTemp.T)
+
+#-----------------------------
+
+
+
 #--Offset correction----------
 dataFrameList, epoch = offLib.getDataFrameList(fileList, variable.keys())
 shiftedTempDF = offLib.getShiftedTemp(interpTempDF)
@@ -158,21 +176,6 @@ dataFrameListAtt[varNames.index('Ze_X')] = \
 
 #-----------------------------
 
-
-#--Copy temp from CLOUDNET----
-tempCel = temp - 273.15
-resampledTemp = attLib.getResampledTimeRange(rangeRef, rangeTolerance, timeRef,
-                                             time, timeTolerance, tempCel, year,
-                                             month, day, height_M)
-
-interpTemp, qualityFlagTemp = attLib.getInterpData(time, timeRef, height_M,
-                                                   resampledTemp, tempCel,
-                                                   rangeRef)
-
-interpTempDF = pd.DataFrame(index=timeRef, columns=rangeRef, 
-                            data=interpTemp.T)
-
-#-----------------------------
 
 
 #--Copy press from CLOUDNET----
