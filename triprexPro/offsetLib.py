@@ -145,7 +145,7 @@ def getParamDF(parameter, timeRef, rangeRef):
     return parameterDF
 
 
-def getShiftedTemp(interpTempDF):
+def getShiftedTemp(interpTempDF, timeRef, rangeRef):
     
     interpTempDF[interpTempDF > 0] = 1 
     interpTempDF[interpTempDF < 0] = -1
