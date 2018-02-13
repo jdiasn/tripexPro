@@ -62,8 +62,8 @@ def getMaskedDF(dataFrameList, variable,
         varIndex = varNames.index(varNameCorr)
 	
         dataFrameList[varIndex][cloudKa!=1]=np.nan
-        dataFrameList[varIndex].loc[:,dataFrameList[varIndex].columns 
-                                    < heightMin]=np.nan
+#        dataFrameList[varIndex].loc[:,dataFrameList[varIndex].columns 
+#                                    < heightMin]=np.nan
         dataFrameList[varIndex][kaThresholdMax]=np.nan
         dataFrameList[varIndex][kaThresholdMin]=np.nan
         
@@ -143,3 +143,42 @@ def getParamDF(parameter, timeRef, rangeRef):
                           data=np.tile(parameter,(len(rangeRef),1)).T)
     
     return parameterDF
+
+
+def getShiftedTemp(interpTempDF):
+    
+    interpTempDF[interpTempDF > 0] = 1 
+    interpTempDF[interpTempDF < 0] = -1
+
+    tempArr = np.array(interpTempDF).T
+    baseArr = np.zeros((40, tempArr.shape[1]))+1
+    shiftedTempArr = np.vstack((baseArr, tempArr))
+    shiftedTempArr = np.delete(shiftedTempArr,
+                               range(shiftedTempArr.shape[0]-40,
+                                     shiftedTempArr.shape[0]),0)
+
+    shiftedTempArr[tempArr>0]=2
+    shiftedTempDF = pd.DataFrame(index=timeRef, 
+                                 columns=rangeRef, 
+                                 data=shiftedTempArr.T)
+    
+    return shiftedTempDF
+
+
+
+def temperatureMask(shiftedTempMaskDF, dataFrameListToMask,
+                   variableToMask, timeRef, rangeRef):
+
+    dfList = []
+    shiftedTempMaskArr = np.array(shiftedTempMaskDF)
+    for variable in variableToMask:
+        
+        dataArr = np.array(dataFrameList[variableToMask.index(variable)])
+        maskedData = np.ma.masked_where(shiftedTempMaskArr > 0, dataArr)
+        
+        maskedDataDF = pd.DataFrame(index=timeRef, columns=rangeRef, data=maskedData)
+        
+        dfList+=[maskedDataDF]
+        
+    return dfList
+
