@@ -9,6 +9,7 @@ def getDataFrameList(fileList, varNames):
 
     dataFrameList = []
 
+    varNames = variableDic.keys()
     for i, variable in enumerate(varNames):
         dataFrameList.append(pd.DataFrame())
 
@@ -26,7 +27,8 @@ def getDataFrameList(fileList, varNames):
     
             try:
                 data = rootgrpRe.variables[variable][:]
-                
+	        data = data + variableDic[variable]['offset']               
+
             except:
                 if variable == 'halt':
                     data = np.ones((len(times), len(ranges)))*ranges
@@ -167,13 +169,14 @@ def getShiftedTemp(interpTempDF, timeRef, rangeRef):
 
 
 def temperatureMask(shiftedTempMaskDF, dataFrameListToMask,
-                   variableToMask, timeRef, rangeRef):
+                   variableToMask, timeRef, rangeRef, variableDic):
 
     dfList = []
+    varNames = variableDic.keys()
     shiftedTempMaskArr = np.array(shiftedTempMaskDF)
     for variable in variableToMask:
         
-        dataArr = np.array(dataFrameListToMask[variableToMask.index(variable)])
+        dataArr = np.array(dataFrameListToMask[varNames.index(variable)])
         maskedData = np.ma.masked_where(shiftedTempMaskArr > 0, dataArr)
         
         maskedDataDF = pd.DataFrame(index=timeRef, columns=rangeRef, data=maskedData)

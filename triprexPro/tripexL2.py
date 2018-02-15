@@ -53,6 +53,7 @@ Ze_KaMin = int(argv[17]) #[dBZ]
 heightThreshold = int(argv[18]) #[m]
 timeWindowLenght = int(argv[19]) #[min]
 thresholdPoints = int(argv[20]) #[Threshold of Points]
+zeOffsetKa = float(argv[21])
 #------------------------------
 
 #--Files to work--------------- 
@@ -71,7 +72,7 @@ radarFreqs = [9.4, 35.5, 95]#[GHz]
 
 #variables to be corrected
 variable={'Ze_X':{'offset': 0, 'colRange':(-25, 35), 'freq':9.4},
-          'Ze_Ka':{'offset': 0, 'colRange':(-25, 35), 'freq':35.5},
+          'Ze_Ka':{'offset': zeOffsetKa, 'colRange':(-25, 35), 'freq':35.5},
           'Ze_W':{'offset': 0, 'colRange':(-25, 35), 'freq':95}}
 varNames = variable.keys()
 #-----------------------------
