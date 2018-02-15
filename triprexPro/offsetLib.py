@@ -5,7 +5,7 @@ import tripexLib as trLib
 import glob
 
 
-def getDataFrameList(fileList, varNames):
+def getDataFrameList(fileList, variableDic):
 
     dataFrameList = []
 

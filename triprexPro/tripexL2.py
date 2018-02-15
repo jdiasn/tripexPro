@@ -112,7 +112,7 @@ interpTempDF = pd.DataFrame(index=timeRef, columns=rangeRef,
 
 
 #--Offset correction----------
-dataFrameList, epoch = offLib.getDataFrameList(fileList, variable.keys())
+dataFrameList, epoch = offLib.getDataFrameList(fileList, variable)
 shiftedTempDF = offLib.getShiftedTemp(interpTempDF, timeRef, rangeRef)
 
 #Attenuation correction
