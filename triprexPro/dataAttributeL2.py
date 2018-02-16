@@ -48,6 +48,10 @@ def variableAttribute(variable, varName, radar):
       finalSource = source
       units = 'dBZ'
 
+   if varName == 'Ze' and radar == 'Ka':
+      offset_correction = 'The Joyrad-35 reflectivites was deviated from Parsivel in -3dB. In this level, 3dB was added in order to correct it'
+      variable.offset_correction = offset_correction 
+
    if varName == 'Attenuation':
       long_name = radar+' band atmospheric 2 way attenuation'
       units = 'dB'
