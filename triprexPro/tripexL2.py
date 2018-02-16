@@ -253,16 +253,16 @@ externalData = {'IWV_Rd':{'data':iwvDF},
 
 #--Copy data from L1----------
 data = None
-variableToCopy={'v_X':{'data':data},
-                'v_Ka':{'data':data},
-                'SW_Ka':{'data':data},
-                'LDR_Ka':{'data':data},
-                'v_W':{'data':data},
-                'SW_W':{'data':data},
+variableToCopy={'v_X':{'data':data, 'offset':0},
+                'v_Ka':{'data':data, 'offset':0},
+                'SW_Ka':{'data':data, 'offset':0},
+                'LDR_Ka':{'data':data, 'offset':0},
+                'v_W':{'data':data, 'offset':0},
+                'SW_W':{'data':data, 'offset':0},
                 }
 
 dataCopiedDFList, epoch = offLib.getDataFrameList(fileList, 
-                                                  variableToCopy.keys())
+                                                  variableToCopy)
 
 for variable in variableToCopy.keys():
     
