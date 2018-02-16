@@ -135,7 +135,7 @@ dataFrameListMaskedXKa = offLib.getMaskedDF(dataFrameListMasked*1, variable,
 maskedTempDFlistXKa = offLib.temperatureMask(shiftedTempDF,
 					     dataFrameListMaskedXKa, 
                                              offsetPairXKa, timeRef,
-                                             rangeRef, variable)
+                                             rangeRef)
 
 dataFrame = maskedTempDFlistXKa[offsetPairXKa.index('Ze_X')]
 dataFrameRef = maskedTempDFlistXKa[offsetPairXKa.index('Ze_Ka')]
@@ -149,8 +149,10 @@ dataFrameListMaskedKaW = offLib.getMaskedDF(dataFrameListMasked*1, variable,
                                             -10, -30, heightThreshold,
                                             offsetPairKaW)
 
-maskedTempDFlistKaW = offLib.temperatureMask(shiftedTempDF, dataFrameListMaskedKaW, 
-                                      offsetPairKaW, timeRef, rangeRef)
+maskedTempDFlistKaW = offLib.temperatureMask(shiftedTempDF,
+                                             dataFrameListMaskedKaW, 
+                                             offsetPairKaW, timeRef,
+                                             rangeRef)
  
 dataFrame = maskedTempDFlistKaW[offsetPairKaW.index('Ze_W')]
 dataFrameRef = maskedTempDFlistKaW[offsetPairKaW.index('Ze_Ka')]

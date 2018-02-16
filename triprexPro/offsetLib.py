@@ -169,14 +169,14 @@ def getShiftedTemp(interpTempDF, timeRef, rangeRef):
 
 
 def temperatureMask(shiftedTempMaskDF, dataFrameListToMask,
-                   variableToMask, timeRef, rangeRef, variableDic):
+                   variableToMask, timeRef, rangeRef):
 
     dfList = []
-    varNames = variableDic.keys()
     shiftedTempMaskArr = np.array(shiftedTempMaskDF)
+
     for variable in variableToMask:
         
-        dataArr = np.array(dataFrameListToMask[varNames.index(variable)])
+        dataArr = np.array(dataFrameListToMask[variableToMask.index(variable)])
         maskedData = np.ma.masked_where(shiftedTempMaskArr > 0, dataArr)
         
         maskedDataDF = pd.DataFrame(index=timeRef, columns=rangeRef, data=maskedData)
