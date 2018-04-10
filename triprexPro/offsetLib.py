@@ -3,6 +3,7 @@ from netCDF4 import Dataset
 import pandas as pd
 import tripexLib as trLib
 import glob
+import pandas as pd
 
 
 def getDataFrameList(fileList, variableDic):
@@ -74,14 +75,16 @@ def getMaskedDF(dataFrameList, variable,
 
     return dataFrameList[var0], dataFrameList[var1]
 
-
+import mkPlots as mkP
 def getOffset(dataFrame, dataFrameRef,
-              timesBegin, timesEnd):
+              timesBegin, timesEnd,
+	      radRef, rad):
     
     offSetAr = np.zeros(1440) + np.nan
     stdDiffAr = np.zeros(1440) + np.nan
     validPointsAr = np.zeros(1440) + np.nan
     stdZe_RefAr = np.zeros(1440) + np.nan
+    correlAr = np.zeros(1440) + np.nan
 
     for i in range(len(timesBegin)):
         newStart = timesBegin[i]
@@ -93,7 +96,14 @@ def getOffset(dataFrame, dataFrameRef,
         Ze_Rad = np.ma.masked_invalid(Ze_Rad)
         Ze_Ref = np.ma.masked_invalid(Ze_Ref)    
         Ze_Diff = Ze_Rad - Ze_Ref
- 
+	
+	tempColDF = pd.DataFrame()
+	tempColDF['var1']=Ze_Ref.flatten()
+	tempColDF['var2']=Ze_Rad.flatten()
+	
+	correl = tempColDF['var1'].corr(tempColDF['var2'])
+#        mkP.plotScatOff(Ze_Ref.flatten(), Ze_Rad.flatten(), 
+#                        newStart, newEnd, radRef, rad, correl)###
         offset = np.mean(Ze_Diff)
         stdDiff = np.std(Ze_Diff)
         stdZe_Ref = np.std(Ze_Ref)
@@ -113,8 +123,11 @@ def getOffset(dataFrame, dataFrameRef,
         stdDiffAr[i] = stdDiff
         validPointsAr[i] = validPoints
         stdZe_RefAr[i] = stdZe_Ref
-        
-    return offSetAr, stdDiffAr, validPointsAr, stdZe_RefAr
+	correlAr[i] = correl
+
+
+    return (offSetAr, stdDiffAr, validPointsAr,
+	   stdZe_RefAr, correlAr)
         
 
 def getParameterTimeSerie(parameters, timeFreq):
@@ -124,9 +137,11 @@ def getParameterTimeSerie(parameters, timeFreq):
     stdDiffTimeSerie = np.repeat(parameters[1],repeatParameter)
     validPointsTimeSerie = np.repeat(parameters[2],repeatParameter)
     stdKaTimeSerie = np.repeat(parameters[3],repeatParameter)
+    correlTimeSerie = np.repeat(parameters[4],repeatParameter)
     
     return (offsetTimeSerie, stdDiffTimeSerie, 
-           validPointsTimeSerie, stdKaTimeSerie)
+           validPointsTimeSerie, stdKaTimeSerie,
+	   correlTimeSerie)
 
 
 def applyOffsetCorr(dataFrameToCorret, offset,

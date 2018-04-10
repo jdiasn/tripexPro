@@ -61,6 +61,11 @@ def variableAttribute(variable, varName, radar):
       long_name = radar+' band offset correction'
       finalSource = 'Offset was calculated for each minute using a moving time window of 10 minutes. Ze from Ka band was used as reference.'
       units = 'dB'
+
+   if varName == 'Correlation':
+      long_name = 'Correlation between '+radar+' and Ka band'
+      finalSource = 'Correlation was calculated for each minute using a moving time window of 60 minutes.'
+      units = '--'
  
    if varName == 'ValidData':
       long_name = 'Number of points used to calculate the '+radar+' band offset.'

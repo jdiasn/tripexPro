@@ -48,8 +48,8 @@ rangeRef = np.arange(beguinRangeRef, endRangeRef, rangeFreq)
 
 #--Radar Variables------------
 #Definitions to apply the offset correction
-Ze_KaMax = int(argv[16]) #[dBZ]
-Ze_KaMin = int(argv[17]) #[dBZ]
+#Ze_KaMax = int(argv[16]) #[dBZ]
+#Ze_KaMin = int(argv[17]) #[dBZ]
 heightThreshold = int(argv[18]) #[m]
 timeWindowLenght = int(argv[19]) #[min]
 thresholdPoints = int(argv[20]) #[Threshold of Points]
@@ -113,7 +113,8 @@ interpTempDF = pd.DataFrame(index=timeRef, columns=rangeRef,
 
 #--Offset correction----------
 dataFrameList, epoch = offLib.getDataFrameList(fileList, variable)
-shiftedTempDF = offLib.getShiftedTemp(interpTempDF, timeRef, rangeRef)
+shiftedTempDF = interpTempDF*1
+shiftedTempDF = offLib.getShiftedTemp(shiftedTempDF, timeRef, rangeRef)
 
 #Attenuation correction
 dataFrameListAtt = attLib.applyAttCorr(dataFrameList*1, interpAttDataList, variable)
@@ -128,8 +129,11 @@ timesEnd = pd.date_range(start+timeWindow, end+timeWindow, freq='1min')
 
 #offset X Ka
 offsetPairXKa = ['Ze_X','Ze_Ka']
-dataFrameListMaskedXKa = offLib.getMaskedDF(dataFrameListMasked*1, variable, 
-                                            0, -12, heightThreshold,
+dataFrameListToXKa = attLib.applyAttCorr(dataFrameList*1, interpAttDataList, 
+					  variable)
+
+dataFrameListMaskedXKa = offLib.getMaskedDF(dataFrameListToXKa, variable, 
+                                            0, -15, heightThreshold,
                                             offsetPairXKa)
 
 maskedTempDFlistXKa = offLib.temperatureMask(shiftedTempDF,
@@ -140,12 +144,16 @@ maskedTempDFlistXKa = offLib.temperatureMask(shiftedTempDF,
 dataFrame = maskedTempDFlistXKa[offsetPairXKa.index('Ze_X')]
 dataFrameRef = maskedTempDFlistXKa[offsetPairXKa.index('Ze_Ka')]
 parametersXKa= offLib.getOffset(dataFrame, dataFrameRef,
-                                timesBegin, timesEnd)
+                                timesBegin, timesEnd, 
+				'Ka', 'X')
 
 
 #offset Ka W
 offsetPairKaW = ['Ze_Ka','Ze_W']
-dataFrameListMaskedKaW = offLib.getMaskedDF(dataFrameListMasked*1, variable, 
+dataFrameListToKaW = attLib.applyAttCorr(dataFrameList*1, interpAttDataList, 
+					  variable)
+
+dataFrameListMaskedKaW = offLib.getMaskedDF(dataFrameListToKaW, variable, 
                                             -10, -30, heightThreshold,
                                             offsetPairKaW)
 
@@ -157,7 +165,8 @@ maskedTempDFlistKaW = offLib.temperatureMask(shiftedTempDF,
 dataFrame = maskedTempDFlistKaW[offsetPairKaW.index('Ze_W')]
 dataFrameRef = maskedTempDFlistKaW[offsetPairKaW.index('Ze_Ka')]
 parametersWKa= offLib.getOffset(dataFrame, dataFrameRef,
-                                timesBegin, timesEnd)
+                                timesBegin, timesEnd,
+                                'Ka', 'W')
 
 parametersXKaTS = offLib.getParameterTimeSerie(parametersXKa, timeFreq)
 parametersWKaTS = offLib.getParameterTimeSerie(parametersWKa, timeFreq)
@@ -165,6 +174,8 @@ parametersWKaTS = offLib.getParameterTimeSerie(parametersWKa, timeFreq)
 ###(I mutipled the offset by -1 )
 offsetWKaDF = offLib.getParamDF(parametersWKaTS[0]*1, timeRef, rangeRef)
 validPointWKaDF = offLib.getParamDF(parametersWKaTS[2]*1, timeRef, rangeRef)
+correlXKaDF = offLib.getParamDF(parametersXKaTS[4]*1, timeRef, rangeRef)
+
 offsetWKaDF = offsetWKaDF*(-1)
 dataFrameListAtt[varNames.index('Ze_W')] = \
    offLib.applyOffsetCorr(dataFrameListAtt[varNames.index('Ze_W')],
@@ -173,6 +184,7 @@ dataFrameListAtt[varNames.index('Ze_W')] = \
 
 offsetXKaDF = offLib.getParamDF(parametersXKaTS[0]*1, timeRef, rangeRef)
 validPointXKaDF = offLib.getParamDF(parametersXKaTS[2]*1, timeRef, rangeRef)
+correlWKaDF = offLib.getParamDF(parametersWKaTS[4]*1, timeRef, rangeRef)
 offsetXKaDF = offsetXKaDF*(-1)
 dataFrameListAtt[varNames.index('Ze_X')] = \
    offLib.applyOffsetCorr(dataFrameListAtt[varNames.index('Ze_X')],
@@ -293,6 +305,8 @@ variableOutPut={'Ze_X':{'data':dataFrameListAtt[varNames.index('Ze_X')]},
                 'Temperature_Cl':{'data':interpTempDF},
 		'RelHum_Cl':{'data':interpRelHumDF},
 		'Pressure_CL':{'data':interpPressDF},
+		'Correlation_X':{'data':correlXKaDF},
+		'Correlation_W':{'data':correlWKaDF},
                }
 
 for indexWrite, timeStart in enumerate(timesBeginWrite):
