@@ -80,6 +80,9 @@ elif variableName == 'RMS':
 elif variableName == 'sigma':
    varFinalName = 'SW'
 
+elif variableName == 'W':
+   varFinalName = 'SW'
+
 else:
    varFinalName = variableName
 
