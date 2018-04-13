@@ -7,6 +7,7 @@ import writeData
 import externalData as extLib
 import offsetLib as offLib
 import attenuationLib as attLib
+import filters as filt 
 
 #--File Paths Definition------
 #cloudNetFiles input
@@ -113,6 +114,9 @@ interpTempDF = pd.DataFrame(index=timeRef, columns=rangeRef,
 
 #--Offset correction----------
 dataFrameList, epoch = offLib.getDataFrameList(fileList, variable)
+
+#dataFrameList = filt.removeOutliersZeKa(dataFrameList, variable)
+
 shiftedTempDF = interpTempDF*1
 shiftedTempDF = offLib.getShiftedTemp(shiftedTempDF, timeRef, rangeRef)
 
@@ -266,6 +270,7 @@ externalData = {'IWV_Rd':{'data':iwvDF},
 #--Copy data from L1----------
 data = None
 variableToCopy={'v_X':{'data':data, 'offset':0},
+                'SW_X':{'data':data, 'offset':0},
                 'v_Ka':{'data':data, 'offset':0},
                 'SW_Ka':{'data':data, 'offset':0},
                 'LDR_Ka':{'data':data, 'offset':0},
@@ -336,6 +341,17 @@ for indexWrite, timeStart in enumerate(timesBeginWrite):
 
     #It writes the data from L1 in L2 file
     for varNameOut in variableToCopy.keys():
+
+        #it removes the noise from v_Ka
+        if varNameOut == 'v_Ka':
+            
+            indexV_Ka = variableToCopy.keys().index('v_Ka')
+            indexZe_Ka = varNames.index('Ze_Ka')    
+            variableToCopy['v_Ka']['data'] = \
+                    filt.removeVelNoiseKa(dataFrameListAtt[indexZe_Ka],
+                                          dataCopiedDFList[indexV_Ka])
+        #-------------------------------       
+
 
         varFinalName, radar=varNameOut.split('_')        
         dataDF = variableToCopy[varNameOut]['data']
