@@ -31,6 +31,19 @@ def rangeAttributes(rangeRef):
 
 def variableAttribute(variable, varName, radar):
 
+   attributes = {
+           'rainFallRate': {
+               'long_name': 'Rain fall rate',
+               'source': 'Rain fall rate retrieved by Pluvio',
+               'units': 'mm -h'
+               },
+           'CldBaseHeight': {
+               'long_name': 'Cloud base height',
+               'source': 'Cloud base height retrieved by Ceilometer',
+               'units': 'm'
+               }
+           }
+
    if radar == 'X':
       source = 'KIXPOL 9.4 GHz radar (KIT) TRIPEx Level 1'
       velocityLim = '+/- 80 m s-1'
@@ -134,16 +147,12 @@ def variableAttribute(variable, varName, radar):
       finalSource = 'Accumulated rain fall retrieved by Pluvio'
       units = 'mm'
 
-   if varName == 'rainFallRate':
-      long_name = 'Rain fall rate'
-      finalSource = 'Rain fall rate retrieved by Pluvio'
-      units = 'mm -h'
+   if varName in attributes:
+       att = attributes[varName]
+       for a in att:
+           variable.setncattr(a, att[a])
 
-   if varName == 'CldBaseHeight':
-      long_name = 'Cloud base height'
-      finalSource = 'Cloud base height retrieved by Ceilometer'
-      units = 'm'
-
+       return variable
      
    variable.long_name = long_name
    variable.units = units
