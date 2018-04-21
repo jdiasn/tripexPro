@@ -114,8 +114,13 @@ interpTempDF = pd.DataFrame(index=timeRef, columns=rangeRef,
 
 #--Offset correction----------
 dataFrameList, epoch = offLib.getDataFrameList(fileList, variable)
+#--it removes extreme values from Doppler velocity 
+dataFrameList = filt.removeOutliersZeKa(dataFrameList, variable)
+#--it removes the clutter from X band
+dataFrameList = filt.removeClutter(dataFrameList, variable, 'Ze_X', 700)
+#--it removes the clutter from Ka band
+dataFrameList = filt.removeClutter(dataFrameList, variable, 'Ze_Ka', 400)
 
-#dataFrameList = filt.removeOutliersZeKa(dataFrameList, variable)
 
 shiftedTempDF = interpTempDF*1
 shiftedTempDF = offLib.getShiftedTemp(shiftedTempDF, timeRef, rangeRef)
