@@ -12,6 +12,10 @@ pre 0.1
 -------
 
 * Read level 1
-* Re-sample
-* Atmosphere correction
+* Re-grid
+* Atmospheric attenuation correction
+* Remove clutter
+* Remove outliers
+* Relative calibration
+* Absolute calibration
 * Save netCDF

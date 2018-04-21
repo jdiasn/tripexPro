@@ -9,3 +9,5 @@ Development Lead
 
 Contributors
 ------------
+
+* Guilherme Castelao <guilherme@castelao.net>

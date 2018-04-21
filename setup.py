@@ -23,11 +23,11 @@ with open('requirements.txt') as requirements_file:
 setup(
     name='tripexPro',
     version='0.1',
-    description='',
+    description='It processes the data vertically pointed radars',
     long_description=readme + '\n\n' + history,
-    author='Jose',
-    author_email='',
-    url='http://',
+    author='Jose Dias Neto',
+    author_email='jdiasn@gmail.com',
+    url='http://jdiasn.github.io',
     packages=[
         'tripexPro',
     ],
