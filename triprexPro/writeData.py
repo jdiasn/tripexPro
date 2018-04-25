@@ -1,6 +1,7 @@
 from netCDF4 import Dataset
 import dataAttributeL1
 import dataAttributeL2
+import dataAttributeL2Samd
 import numpy as np
 
 def defineAttr(prefix):
@@ -8,8 +9,11 @@ def defineAttr(prefix):
    if prefix == 'tripex_3fr_L1_mom':
       dataAttribute = dataAttributeL1 
 
-   if prefix == 'tripex_3fr_L2_mom':
+   elif prefix == 'tripex_3fr_L2_mom':
       dataAttribute = dataAttributeL2 
+
+   elif prefix == 'tripex_joy_tricr00_l1_any_v00_':
+      dataAttribute = dataAttributeL2Samd
 
    return dataAttribute
 
@@ -48,9 +52,9 @@ def createRangeDimension(rootgrpOut, rangeRef, prefix):
    dataAttribute = defineAttr(prefix)
 
    try:
-      rootgrpOut.createDimension('altitude', len(rangeRef))
-      range_ref = rootgrpOut.createVariable('altitude', np.float32,
-		                           ('altitude',), fill_value=np.nan)
+      rootgrpOut.createDimension('range', len(rangeRef))
+      range_ref = rootgrpOut.createVariable('range', np.float32,
+		                           ('range',), fill_value=np.nan)
       range_ref[:] = rangeRef
       range_ref = dataAttribute.rangeAttributes(range_ref)
       return range_ref
