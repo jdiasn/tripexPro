@@ -234,85 +234,75 @@ interpRelHumDF = pd.DataFrame(index=timeRef, columns=rangeRef,
 #-----------------------------
 
 
-#--Copy external data --------
-#resampledIWVDF = extLib.getDataRadiometer(year, month, day, timeRef,
-#                                          timeTolerance, 'IWV')
+#--radar definitions --------
 
-#iwvDF = pd.DataFrame(index=resampledIWVDF.index, data=resampledIWVDF['IWV'])
-#iwvFlagDF = pd.DataFrame(index=resampledIWVDF.index, data=resampledIWVDF['flag'])
-
-#resampledLWPDF = extLib.getDataRadiometer(year, month, day, timeRef,
-#                                          timeTolerance, 'LWP')
-
-#lwpDF = pd.DataFrame(index=resampledLWPDF.index, data=resampledLWPDF['LWP'])
-#lwpFlagDF = pd.DataFrame(index=resampledLWPDF.index, data=resampledLWPDF['flag'])
-
-#resampledPluvDF = extLib.getDataPluvio(year, month, day, timeRef,
-#                                timeTolerance)
-
-#accRainFallDF = pd.DataFrame(index=resampledPluvDF.index, 
-#                             data=resampledPluvDF['totAccumNRT'])
-
-#rainFallRateDF = pd.DataFrame(index=resampledPluvDF.index, 
-#                              data=resampledPluvDF['accumNRT'])
- 
-#resampCldBasHeiDF = extLib.getDataCeilo(year, month, day, timeRef,
-#                                 timeTolerance)
+externalData = {'freq_sb_x':{'data':np.array(9.4*10**9,np.float32)},
+		'freq_sb_ka':{'data':np.array(35.5*10**9,np.float32)},
+		'freq_sb_w':{'data':np.array(94*10**9,np.float32)},
+		'radar_beam_width_x':{'data':np.array(1.3,np.float32)},
+		'radar_beam_width_ka':{'data':np.array(0.6,np.float32)},
+		'radar_beam_width_w':{'data':np.array(0.5,np.float32)},
+		'lat':{'data':50.9086},
+		'lon':{'data':6.4135},
+		'zsl':{'data':112.5}
+}
 
 
-#externalData = {'IWV_Rd':{'data':iwvDF},
-#		'IWVFlag_Rd':{'data':iwvFlagDF},
-#		'LWP_Rd':{'data':lwpDF},
-#		'LWPFlag_Rd':{'data':lwpFlagDF},
-#		'AccRainFall_Pl':{'data':accRainFallDF},
-#		'rainFallRate_Pl':{'data':rainFallRateDF},
-#                'CldBaseHeight_Cei':{'data':resampCldBasHeiDF}
-#}
+bnds = {'time_bnds':{'data':np.ones((len(timeRef), 2))*\
+		     np.array([np.float(timeTolerance[:-1])*(-1),
+                               np.float(timeTolerance[:-1])])},
+        'range_bnds':{'data':np.ones((len(rangeRef),2))*\
+                      np.array([np.float(rangeTolerance)*(-1), 
+                                np.float(rangeTolerance)])}
+
+}
 
 #-----------------------------
 
 
 #--Copy data from L1----------
 data = None
-variableToCopy={'v_X':{'data':data, 'offset':0},
-                'SW_X':{'data':data, 'offset':0},
-                'v_Ka':{'data':data, 'offset':0},
-                'SW_Ka':{'data':data, 'offset':0},
-                'LDR_Ka':{'data':data, 'offset':0},
-                'v_W':{'data':data, 'offset':0},
-                'SW_W':{'data':data, 'offset':0},
+variableToCopy={'v_X':{'data':data, 'offset':0, 'outName':'rv_x'},
+                'v_Ka':{'data':data, 'offset':0, 'outName':'rv_ka'},
+                'v_W':{'data':data, 'offset':0, 'outName':'rv_w'},
+                'SW_X':{'data':data, 'offset':0, 'outName':'sw_x'},
+                'SW_Ka':{'data':data, 'offset':0, 'outName':'sw_ka'},
+                'SW_W':{'data':data, 'offset':0, 'outName':'sw_w'},
+                'LDR_Ka':{'data':data, 'offset':0, 'outName':'ldr_ka'},
                 }
 
 dataCopiedDFList, epoch = offLib.getDataFrameList(fileList, 
                                                   variableToCopy)
 
+variableToCopyTemp={}
+for variable in variableToCopy.keys():
+
+    outName = variableToCopy[variable]['outName']
+    variableToCopyTemp[outName]={'data':data}
+
 for variable in variableToCopy.keys():
     
     varNamesToCopy = variableToCopy.keys()
-    variableToCopy[variable]['data'] = \
+    outName = variableToCopy[variable]['outName']
+    variableToCopyTemp[outName]['data'] = \
    	 dataCopiedDFList[varNamesToCopy.index(variable)]
+
+variableToCopy = variableToCopyTemp
 
 #-----------------------------
 
 
 #--Write data-----------------
 
-variableOutPut={'Ze_X':{'data':dataFrameListAtt[varNames.index('Ze_X')]},
-                'Ze_Ka':{'data':dataFrameListAtt[varNames.index('Ze_Ka')]},
-                'Ze_W':{'data':dataFrameListAtt[varNames.index('Ze_W')]},
-                'Attenuation_X':{'data':interpAttDataList[varNames.index('Ze_X')]},
-                'Attenuation_Ka':{'data':interpAttDataList[varNames.index('Ze_Ka')]},
-                'Attenuation_W':{'data':interpAttDataList[varNames.index('Ze_W')]},
-                'Offset_X':{'data':offsetXKaDF},
-                'Offset_W':{'data':offsetWKaDF},
-#               'ValidData_X':{'data':validPointXKaDF},
-#               'ValidData_Ka':{'data':validPointWKaDF},
-#               'Temperature_Cl':{'data':interpTempDF},
-#		'RelHum_Cl':{'data':interpRelHumDF},
-#		'Pressure_CL':{'data':interpPressDF},
-#		'Correlation_X':{'data':correlXKaDF},
-#		'Correlation_W':{'data':correlWKaDF},
-               }
+variableOutPut={'dbz_x':{'data':dataFrameListAtt[varNames.index('Ze_X')]},
+                'dbz_ka':{'data':dataFrameListAtt[varNames.index('Ze_Ka')]},
+                'dbz_w':{'data':dataFrameListAtt[varNames.index('Ze_W')]},
+                'pia_x':{'data':interpAttDataList[varNames.index('Ze_X')]},
+                'pia_ka':{'data':interpAttDataList[varNames.index('Ze_Ka')]},
+                'pia_w':{'data':interpAttDataList[varNames.index('Ze_W')]},
+                'offset_x':{'data':offsetXKaDF},
+                'offset_w':{'data':offsetWKaDF},
+              }
 
 #for indexWrite, timeStart in enumerate(timesBeginWrite):
         
@@ -324,10 +314,11 @@ outPutFilePath = ('/').join([outputPath, outPutFile])
 timeRefWrt = dataFrameList[0].index
 timeRefUnixWrt = np.array(timeRefWrt, float)
 timeRefUnixWrt = timeRefUnixWrt/10.**9
-    
+  
 rootgrpOut = writeData.createNetCdf(outPutFilePath, prefixL2)
 time_ref = writeData.createTimeDimension(rootgrpOut, timeRefUnixWrt, prefixL2)
 range_ref = writeData.createRangeDimension(rootgrpOut, rangeRef, prefixL2)
+nv_dim = writeData.createNvDimension(rootgrpOut, prefixL2)
     
 for varNameOut in variableOutPut.keys():
 
@@ -346,10 +337,10 @@ for varNameOut in variableToCopy.keys():
             
         indexV_Ka = variableToCopy.keys().index('v_Ka')
         indexZe_Ka = varNames.index('Ze_Ka')    
-        variableToCopy['v_Ka']['data'] = \
+        variableToCopy['v_ka']['data'] = \
                 filt.removeVelNoiseKa(dataFrameListAtt[indexZe_Ka],
                                       dataCopiedDFList[indexV_Ka])
-        #-------------------------------       
+    #-------------------------------       
 
 
     varFinalName, radar=varNameOut.split('_')        
@@ -360,13 +351,26 @@ for varNameOut in variableToCopy.keys():
                                            radar, prefixL2)
         
 
-#for varNameOut in externalData.keys():
+for varNameOut in externalData.keys():
 
-#    varFinalName, sensor=varNameOut.split('_')        
-#    dataDF = externalData[varNameOut]['data']
-#    dataToWrite = np.array(dataDF[start:end].astype(np.float32))
-#    var_Written = writeData.create1Dvariable(rootgrpOut, dataToWrite,
-#                                             varFinalName, sensor, prefixL2)
+    varListName = varNameOut.split('_')
+    if len(varListName) > 1:
+	    varFinalName = '_'.join(varListName[:-1])
+            sensor = varListName[-1]
+    else:
+	varFinalName = varListName[0]
+        sensor = ''        
+    dataDF = externalData[varNameOut]['data']
+    dataToWrite = np.array(dataDF)
+    var_Written = writeData.createOneValvariable(rootgrpOut, dataToWrite,
+                                                varFinalName, sensor, prefixL2)
+
+for varNameOut in bnds.keys():
+	
+    dimName, varName = varNameOut.split('_')
+    dataToWrite = bnds[varNameOut]['data']
+    var_Written = writeData.createBndsVariable(rootgrpOut, dataToWrite,
+                                               varNameOut, dimName)
  
 
 rootgrpOut.close()

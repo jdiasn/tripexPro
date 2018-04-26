@@ -35,124 +35,107 @@ def rangeAttributes(rangeRef):
 
 
 def variableAttribute(variable, varName, radar):
-
+  
+   radar = radar.capitalize()
    if radar == 'X':
-      source = 'KIXPOL 9.4 GHz radar (KIT) TRIPEx Level 1'
-      velocityLim = '+/- 80 m s-1'
+      commentZe = 'The original reflectivities have been re-gridded onto a common time-height grid and have been corrected for gas attenuation; relative calibrated has been applied with Ka-Band radar in the high altitude ice part when possible. Note that the reflectivity resolution of the instrument is only 0.5 dB.'
 
-   if radar == 'Ka':
-      source = 'JOYRAD-35 35.5 GHz cloud radar TRIPEx Level 1'
-      velocityLim = '+/- 20 m s-1'
+      commentVel = 'Sign convention: Negative when moving towards the radar. Note that the radar antenna had to continuously rotate (bird bath scan) in order to record data. The antenna seemed to had a slight mis-pointing thus a sinusoidal modulation is sometimes visible depending on the horizontal wind. This signature disappears with longer averaging.'
 
-   if radar == 'W':
-      source = 'JOYRAD-94 94 GHz cloud radar TRIPEx Level 1'
-      velocityLim = '+/- 18 m s-1'
+      commentOff = 'After reflectivities have been corrected for gas attenuation for each frequency, the remaining offsets due to wet radome etc. have been estimated by using one hourly data, regions at least 1km above the zero degree isotherm and reflectivities smaller than -5dBz. Assuming the Ka-band radar as our reference, we assume that for X and Ka-band these low-reflectivity ice clouds represent Rayleigh scatterers and hence the reflectivities should match. A quality flag is provided indicating the reliability of the correction applied. The user can simply go back to the attenuation-only corrected reflectivities by subtracting this offset to the corrected reflectivity values.'
 
-   if varName == 'Ze':
-      long_name = 'Equivalent '+radar+' band Reflectivity Factor Ze of all Targets. Offset and Attenuation corrections were applied'
-      finalSource = source
+   elif radar == 'Ka':
+      commentZe = 'The original reflectivities have been re-gridded onto a common time-height grid and have been corrected for gas attenuation; relative calibration has been performed with rain cases observed together with PARSIVEL.'
+      
+      commentVel = 'Sign convention: Negative when moving towards the radar. Note that we are suspecting a slight mispointing of the antenna in the order of 0.5 degree off-zenith. This needs more in-depths investigation but can lead to offsets in the order of 0.1-0.3 m/s in case of strong horizontal winds.'
+
+   elif radar == 'W':
+      commentZe = 'The original reflectivities have been re-gridded onto a common time-height grid and have been corrected for gas attenuation; relative calibrated has been applied with Ka-Band radar in the high altitude ice part when possible.'
+      
+      commentVel = 'Sign convention: Negative when moving towards the radar'
+
+      commentOff = 'After reflectivities have been corrected for gas attenuation for each frequency, the remaining offsets due to wet radome, liquid water attenuation, etc. have been estimated by using one hourly data, regions at least 1km above the zero degree isotherm and reflectivities smaller than -10dBZ. Assuming the Ka-band radar as our reference, we assume that for W and Ka-band these low-reflectivity ice clouds represent Rayleigh scatterers and hence the reflectivities should match. A quality flag is provided indicating the reliability of the correction applied. The user can simply go back to the attenuation-only corrected reflectivities by subtracting this offset to the corrected reflectivity values'
+
+   if varName == 'dbz':
+      standard_name = 'equivalent_reflectivity_factor'
+      long_name = 'equivalent reflectivity factor {radar}-Band'.format(radar=radar)
       units = 'dBZ'
-
-   if varName == 'Ze' and radar == 'Ka':
-      offset_correction = 'The Joyrad-35 reflectivites was deviated from Parsivel in -3dB. In this level, 3dB was added in order to correct it'
-      variable.offset_correction = offset_correction 
-
-   if varName == 'Attenuation':
-      long_name = radar+' band atmospheric 2 way attenuation'
-      units = 'dB'
-      finalSource = 'Calculated with PAMTRA using CLOUDNET atmospheric profiles'
-
-   if varName == 'Offset':
-      long_name = radar+' band offset correction'
-      finalSource = 'Offset was calculated for each minute using a moving time window of 10 minutes. Ze from Ka band was used as reference.'
-      units = 'dB'
-
-   if varName == 'Correlation':
-      long_name = 'Correlation between '+radar+' and Ka band'
-      finalSource = 'Correlation was calculated for each minute using a moving time window of 60 minutes.'
-      units = '--'
- 
-   if varName == 'ValidData':
-      long_name = 'Number of points used to calculate the '+radar+' band offset.'
-      finalSource = 'Offset routine' 
-      units = '--'
-
-   if varName == 'Temperature':
-      long_name = 'Temperature from CLOUDNET'
-      finalSource = 'Temperature from CLOUDNET was interpolated to radar grid'
-      units = 'C'
-
-   if varName == 'Pressure':
-      long_name = 'Pressure from CLOUDNET'
-      finalSource = 'Pressure from CLOUDNET was interpolated to radar grid'
-      units = 'Pa'
- 
-   if varName == 'RelHum':
-      long_name = 'Relative humidity from CLOUDNET'
-      finalSource = 'Humidity from CLOUDNET was interpolated to radar grid'
-      units = '%'
-    
-   if varName == 'v':
-      long_name = radar+' band Mean Doppler velocity (Sign convention: Negative when moving towards the radar) '
+      finalComment = commentZe
+   
+   elif varName == 'rv':
+      standard_name = 'radial_velocity_of_scatterers_away_from_instrument'
+      long_name = 'mean Doppler velocity {radar}-Band'.format(radar=radar)
       units = 'm s-1'
-      variable.Nyquist_velocity = velocityLim
+      finalComment = commentVel
 
-   if varName == 'SW':
-      long_name = radar+' band Spectrum Width'
+   elif varName == 'sw':
+      long_name = 'radar spectral width {radar}-Band'.format(radar=radar)
       units = 'm s-1'
  
-   if varName == 'LDR':
-      long_name = radar+' band Linear De-Polarization Ratio'
+   elif varName == 'ldr':
+      long_name = 'radar linear depolarization ratio {radar}-Band'.format(radar=radar)
       units = 'dB'
-    
-   if varName == 'delta_altitude':
-      long_name = radar+' band vertical distance of the original range resolution to the vertical grid (var:altitude) used to resample the data'
-      units = 'm'
-
-   if varName == 'delta_time':
-      long_name = radar+' band temporal difference between the original time resolution and the time vector used to resample the data'
-      units = 's'
-
  
-   if varName == 'IWV':
-      long_name = 'Integrated water vapor'
-      finalSource = 'Integrated water vapor retrieved by Microwave Radiometer'
-      units = 'kg m-2'
+   elif varName == 'pia':
+      long_name = 'path integrated attenuation {radar}-Band (two-way) due to gaseous atmosphere'.format(radar=radar)
+      units = 'dBZ'
+      finalComment = 'Two-way path integrated attenuation due to dry gases and water vapor calculated with radiative transfer model PAMTRA and thermodynamic profiles from CloudNet product for JOYCE site. Simply subtract these values from the corrected reflectivities in order to restore the uncorrected reflectivities.'
 
-   if varName == 'IWVFlag':
-      long_name = 'Integrated water vapor quality flag'
-      finalSource = 'Integrated water vapor quality flag'
-      units = ''
+   elif varName == 'offset':
+      long_name = 'relative offset of {radar}-Band compared to reference Ka-Band'.format(radar=radar)
+      units = 'dBZ'
+      finalComment = commentOff
 
-   if varName == 'LWP':
-      long_name = 'Liquid water path'
-      finalSource = 'Liquid water path retrieved by Microwave Radiometer'
-      units = 'kg m-2'
+   elif varName == 'freq_sb':
+      standard_name = 'sensor_band_central_radiation_frequency'
+      long_name = 'operating frequency of {radar}-Band radar'.format(radar=radar)
+      units = 's-1'
 
-   if varName == 'LWPFlag':
-      long_name = 'Liquid water path quality flag'
-      finalSource = 'Liquid water path quality flag'
-      units = ''
+   elif varName == 'radar_beam_width':
+      long_name = '3dB beam width of the {radar}-Band radar'.format(radar=radar)
+      units = 'degree'
 
-   if varName == 'AccRainFall':
-      long_name = 'Accumulated rain fall'
-      finalSource = 'Accumulated rain fall retrieved by Pluvio'
-      units = 'mm'
+   elif varName == 'lon':
+      standard_name = 'longitude'	
+      long_name = 'longitude of reference radar system' 
+      finalComment = 'Longitude of the reference radar (W-Band) location in decimals.'
+      units = 'degrees_east'
 
-   if varName == 'rainFallRate':
-      long_name = 'Rain fall rate'
-      finalSource = 'Rain fall rate retrieved by Pluvio'
-      units = 'mm -h'
+   elif varName == 'lat':
+      standard_name = 'latitude'	
+      long_name = 'latitude of reference radar system' 
+      finalComment = 'Latitude of the reference radar (W-Band) location in decimals.'
+      units = 'degrees_north'
 
-   if varName == 'CldBaseHeight':
-      long_name = 'Cloud base height'
-      finalSource = 'Cloud base height retrieved by Ceilometer'
+   elif varName == 'zsl':
+      standard_name = 'altitude' 
+      long_name = 'altitude above mean sea level'
+      finalComment = 'altitude above mean sea level of the reference radar (W-Band) location'
       units = 'm'
 
-     
-   variable.long_name = long_name
-   variable.units = units
-   variable.source = finalSource
+   try: 
+         variable.standard_name = standard_name
+   except:
+         print 'no standard_name to write'
+ 	 pass
+  
+   try:
+         variable.long_name = long_name
+   except:
+         print 'no long_name to write'
+         pass
+
+   try:
+         variable.units = units
+   except:
+         print 'no units to write'
+         pass
+
+   try:
+        variable.comment = finalComment
+   except:
+        print 'no comment to write'
+        pass
 
    return variable
 
