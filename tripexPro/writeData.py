@@ -1,6 +1,7 @@
 from netCDF4 import Dataset
 import dataAttributeL1
 import dataAttributeL2
+import dataAttributeL2Samd
 import numpy as np
 
 def defineAttr(prefix):
@@ -8,8 +9,11 @@ def defineAttr(prefix):
    if prefix == 'tripex_3fr_L1_mom':
       dataAttribute = dataAttributeL1 
 
-   if prefix == 'tripex_3fr_L2_mom':
+   elif prefix == 'tripex_3fr_L2_mom':
       dataAttribute = dataAttributeL2 
+
+   elif prefix == 'tripex_joy_tricr00_l1_any_v00':
+      dataAttribute = dataAttributeL2Samd
 
    return dataAttribute
 
@@ -27,6 +31,18 @@ def createNetCdf(outPutFilePath, prefix):
 
    return rootgrpOut
 
+def createNvDimension(rootgrpOut, prefix):
+    
+   dataAttribute = defineAttr(prefix)
+   
+   try:
+      rootgrpOut.createDimension('nv',2)
+      nv = rootgrpOut.createVariable('nv',np.float32,('nv',))
+      nv[:] = 2
+      return nv
+    
+   except:
+      return None
 
 def createTimeDimension(rootgrpOut, timeRef, prefix):
 
@@ -48,9 +64,9 @@ def createRangeDimension(rootgrpOut, rangeRef, prefix):
    dataAttribute = defineAttr(prefix)
 
    try:
-      rootgrpOut.createDimension('altitude', len(rangeRef))
-      range_ref = rootgrpOut.createVariable('altitude', np.float32,
-		                           ('altitude',), fill_value=np.nan)
+      rootgrpOut.createDimension('range', len(rangeRef))
+      range_ref = rootgrpOut.createVariable('range', np.float32,
+		                           ('range',), fill_value=np.nan)
       range_ref[:] = rangeRef
       range_ref = dataAttribute.rangeAttributes(range_ref)
       return range_ref
@@ -66,7 +82,7 @@ def createVariable(rootgrpOut, variable, varName, varNameOutput, radar, prefix):
    try:
     
       var_nearest = rootgrpOut.createVariable(varNameOutput, np.float32,
-                                             ('time','altitude'), 
+                                             ('time','range'), 
                                              fill_value=np.nan)
       var_nearest[:] = variable
       var_nearest = dataAttribute.variableAttribute(var_nearest,
@@ -77,11 +93,21 @@ def createVariable(rootgrpOut, variable, varName, varNameOutput, radar, prefix):
    except:
       return None
 
+def createBndsVariable(rootgrpOut, variable, varNameOutPut, dimName):
+
+   try:
+
+      var_nearest = rootgrpOut.createVariable(varNameOutPut, np.float32,
+                                              (dimName,'nv'))
+      var_nearest[:] = variable
+      return var_nearest	
+   
+   except IOError:
+      return None
 
 def createDeviation(rootgrpOut, variable, varName, radar, prefix):
 
    dataAttribute = defineAttr(prefix)
-
    dimension = varName.split('_')[-1]
    varNameOutput = '_'.join([varName, radar])
  
@@ -103,14 +129,21 @@ def createDeviation(rootgrpOut, variable, varName, radar, prefix):
    except:
       return None
 
-def create1Dvariable(rootgrpOut, variable, varName, sensor, prefix):
+def createOneValvariable(rootgrpOut, variable, varName, sensor, prefix):
 
    dataAttribute = defineAttr(prefix)
-   varNameOutput = varName   
+
+   if varName == 'lat' or \
+      varName == 'lon' or \
+      varName == 'zsl':
+      varNameOutput = varName	
+
+   else:
+      varNameOutput = '_'.join([varName, sensor])   
 
    try:
       var_nearest = rootgrpOut.createVariable(varNameOutput, np.float32,
-                                           ('time'), fill_value=np.nan)
+                                              fill_value=np.nan)
       var_nearest[:] = variable
       var_nearest = dataAttribute.variableAttribute(var_nearest,
                                                  varName, sensor)
