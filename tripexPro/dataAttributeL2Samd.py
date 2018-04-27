@@ -132,7 +132,7 @@ def variableAttribute(variable, varName, radar):
          pass
 
    try:
-        variable.comment = finalComment
+        variable.comments = finalComment
    except:
         print 'no comment to write'
         pass
