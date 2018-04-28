@@ -12,8 +12,8 @@ inputPathL1='/work2/tripex/tripex_level_01'
 prefixL1='tripex_3fr_L1_mom'
 
 #outputPathL2='/work/radarData/tripexL2'
-#outputPathL2='/work2/tripex/tripex_level_02'
-outputPathL2='/home/jdias/Projects/radarDataResampled/testL2'
+outputPathL2='/data/optimice/tripex/tripex_level_02_samd'
+#outputPathL2='/home/jdias/Projects/radarDataResampled/testL2'
 prefixL2='tripex_joy_tricr00_l1_any_v00'
 #-----------------------------
 

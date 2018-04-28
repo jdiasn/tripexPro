@@ -65,6 +65,7 @@ cloudNetFilePath = ('/').join([cloudNetPath, year, cloudNetFile])
 fileDate = ('').join([year, month, day])
 print ('/').join([dataPathRe,fileId+'_'+fileDate+'*.nc'])
 fileList = glob.glob(('/').join([dataPathRe,fileId+'_'+fileDate+'*.nc']))
+fileList = sorted(fileList)
 #-----------------------------
 
 #--Radar definitions----------
@@ -311,8 +312,7 @@ dateName = start.strftime('%Y%m%d')
 outPutFile = ('_').join([prefixL2, dateName+'.nc'])
 outPutFilePath = ('/').join([outputPath, outPutFile])
     
-timeRefWrt = dataFrameList[0].index
-timeRefUnixWrt = np.array(timeRefWrt, float)
+timeRefUnixWrt = np.array(timeRef, float)
 timeRefUnixWrt = timeRefUnixWrt/10.**9
   
 rootgrpOut = writeData.createNetCdf(outPutFilePath, prefixL2)
@@ -333,13 +333,13 @@ for varNameOut in variableOutPut.keys():
 for varNameOut in variableToCopy.keys():
 
     #it removes the noise from v_Ka
-    if varNameOut == 'v_Ka':
+    if varNameOut == 'rv_ka':
             
-        indexV_Ka = variableToCopy.keys().index('v_Ka')
-        indexZe_Ka = varNames.index('Ze_Ka')    
-        variableToCopy['v_ka']['data'] = \
-                filt.removeVelNoiseKa(dataFrameListAtt[indexZe_Ka],
-                                      dataCopiedDFList[indexV_Ka])
+        #indexV_Ka = variableToCopy.keys().index('rv_ka')
+        #indexZe_Ka = varNames.index('Ze_Ka')    
+        variableToCopy['rv_ka']['data'] = \
+                filt.removeVelNoiseKa(variableOutPut['dbz_ka']['data'],
+                                      variableToCopy['rv_ka']['data'])
     #-------------------------------       
 
 
