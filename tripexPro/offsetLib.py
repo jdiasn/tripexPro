@@ -85,6 +85,7 @@ def getOffset(dataFrame, dataFrameRef,
     validPointsAr = np.zeros(1440) + np.nan
     stdZe_RefAr = np.zeros(1440) + np.nan
     correlAr = np.zeros(1440) + np.nan
+    percentAr = np.zeros(1440) + np.nan
 
     for i in range(len(timesBegin)):
         newStart = timesBegin[i]
@@ -118,16 +119,25 @@ def getOffset(dataFrame, dataFrameRef,
         invalidPoints = Ze_Diff[np.isnan(Ze_Diff)].shape[0]
         totalPoints = Ze_Diff.shape[0]*Ze_Diff.shape[1]
         validPoints = totalPoints - invalidPoints
-    
-        offSetAr[i] = offset
+        percent = (validPoints*100.) / float(totalPoints)
+   
+	if validPoints >= 300:	
+           
+           offSetAr[i] = offset
+	   correlAr[i] = correl
+	
+	else:
+           offSetAr[i] = np.nan
+           correlAr[i] = np.nan
+
         stdDiffAr[i] = stdDiff
         validPointsAr[i] = validPoints
         stdZe_RefAr[i] = stdZe_Ref
-	correlAr[i] = correl
+        percentAr[i] = percent
 
 
     return (offSetAr, stdDiffAr, validPointsAr,
-	   stdZe_RefAr, correlAr)
+	   stdZe_RefAr, correlAr,percentAr)
         
 
 def getParameterTimeSerie(parameters, timeFreq):
@@ -138,10 +148,11 @@ def getParameterTimeSerie(parameters, timeFreq):
     validPointsTimeSerie = np.repeat(parameters[2],repeatParameter)
     stdKaTimeSerie = np.repeat(parameters[3],repeatParameter)
     correlTimeSerie = np.repeat(parameters[4],repeatParameter)
+    percentTimeSerie = np.repeat(parameters[5],repeatParameter)
     
     return (offsetTimeSerie, stdDiffTimeSerie, 
            validPointsTimeSerie, stdKaTimeSerie,
-	   correlTimeSerie)
+	   correlTimeSerie, percentTimeSerie)
 
 
 def applyOffsetCorr(dataFrameToCorret, offset,
@@ -155,7 +166,7 @@ def applyOffsetCorr(dataFrameToCorret, offset,
 
 def getParamDF(parameter, timeRef, rangeRef):
         
-    parameter[np.isnan(parameter)]=0
+    parameter[np.isnan(parameter)]=np.nan
     parameterDF=pd.DataFrame(index=timeRef, columns=rangeRef,
                           data=np.tile(parameter,(len(rangeRef),1)).T)
     

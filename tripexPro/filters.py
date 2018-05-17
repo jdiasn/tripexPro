@@ -34,3 +34,25 @@ def removeClutter(dataFrameList, variable, target, maxHeight):
     
     return dataFrameList
 
+
+def func(x,a,b):
+    
+    return np.log(x*b)*a 
+
+def sensitivityFilter(dataFrameList, variable, target, sensPar):
+
+    allZe_DF = dataFrameList[variable.keys().index(target)]
+    a = sensPar['a']
+    b = sensPar['b']
+
+    for column in allZe_DF.columns:
+    
+        sens = func(column, a, b)
+        allZe_DF[column][allZe_DF[column] < sens] = np.nan
+    
+    dataFrameList[variable.keys().index(target)] = allZe_DF
+
+    return dataFrameList
+
+
+

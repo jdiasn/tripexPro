@@ -7,7 +7,8 @@ import writeData
 import externalData as extLib
 import offsetLib as offLib
 import attenuationLib as attLib
-import filters as filt 
+import filters as filt
+import qualityFlag as qFlag 
 
 #--File Paths Definition------
 #cloudNetFiles input
@@ -57,9 +58,17 @@ thresholdPoints = int(argv[20]) #[Threshold of Points]
 zeOffsetKa = float(argv[21])
 #------------------------------
 
+hatproPath = argv[22]
+hatproFileID = argv[23]
+
 #--Files to work--------------- 
 cloudNetFile = ('_').join([year+month+day,cloudNetFileID])
 cloudNetFilePath = ('/').join([cloudNetPath, year, cloudNetFile])
+
+hatproFile = ('_').join([hatproFileID, year+month+day+'*.nc'])
+hatproFilePath = ('/').join([hatproPath, year[2:]+month, hatproFile])
+hatproFileName = glob.glob(hatproFilePath)[0]
+
 #print cloudNetFilePath
 
 fileDate = ('').join([year, month, day])
@@ -115,11 +124,28 @@ interpTempDF = pd.DataFrame(index=timeRef, columns=rangeRef,
 
 #--Offset correction----------
 dataFrameList, epoch = offLib.getDataFrameList(fileList, variable)
-#--it removes extreme values from Doppler velocity 
+
+#Sensitivity parameters
+sensParam = {'x':{'a':1.05258702e+01, 'b':4.76220165e-05},
+             'ka':{'a':8.87812466e+00, 'b':1.51414427e-06},
+             'w':{'a':5.76194550e+00, 'b':1.70653858e-07},
+            }
+
+#dataFrameList = filt.sensitivityFilter(dataFrameList, variable,
+#                                       'Ze_X', sensParam['x'])
+
+#dataFrameList = filt.sensitivityFilter(dataFrameList, variable,
+#                                       'Ze_Ka', sensParam['ka'])
+
+#dataFrameList = filt.sensitivityFilter(dataFrameList, variable,
+#                                       'Ze_W', sensParam['w'])
+
+
+#it removes extreme values from reflectively velocity 
 dataFrameList = filt.removeOutliersZeKa(dataFrameList, variable)
-#--it removes the clutter from X band
+#it removes the clutter from X band
 dataFrameList = filt.removeClutter(dataFrameList, variable, 'Ze_X', 700)
-#--it removes the clutter from Ka band
+#it removes the clutter from Ka band
 dataFrameList = filt.removeClutter(dataFrameList, variable, 'Ze_Ka', 400)
 
 
@@ -134,7 +160,7 @@ dataFrameListMasked = attLib.applyAttCorr(dataFrameList*1, interpAttDataList,
 					  variable)
   
 timeWindow = pd.to_timedelta( timeWindowLenght, unit='m')
-timesBegin = pd.date_range(start, end, freq='1min')
+timesBegin = pd.date_range(start-timeWindow, end-timeWindow, freq='1min')
 timesEnd = pd.date_range(start+timeWindow, end+timeWindow, freq='1min')
 
 #offset X Ka
@@ -143,7 +169,7 @@ dataFrameListToXKa = attLib.applyAttCorr(dataFrameList*1, interpAttDataList,
 					  variable)
 
 dataFrameListMaskedXKa = offLib.getMaskedDF(dataFrameListToXKa, variable, 
-                                            0, -15, heightThreshold,
+                                            -5, -20, heightThreshold,
                                             offsetPairXKa)
 
 maskedTempDFlistXKa = offLib.temperatureMask(shiftedTempDF,
@@ -164,7 +190,7 @@ dataFrameListToKaW = attLib.applyAttCorr(dataFrameList*1, interpAttDataList,
 					  variable)
 
 dataFrameListMaskedKaW = offLib.getMaskedDF(dataFrameListToKaW, variable, 
-                                            -10, -30, heightThreshold,
+                                            -10, -35, heightThreshold,
                                             offsetPairKaW)
 
 maskedTempDFlistKaW = offLib.temperatureMask(shiftedTempDF,
@@ -182,6 +208,7 @@ parametersXKaTS = offLib.getParameterTimeSerie(parametersXKa, timeFreq)
 parametersWKaTS = offLib.getParameterTimeSerie(parametersWKa, timeFreq)
 
 ###(I mutipled the offset by -1 )
+percentDfWKa = offLib.getParamDF(parametersWKaTS[5]*1, timeRef, rangeRef)
 offsetWKaDF = offLib.getParamDF(parametersWKaTS[0]*1, timeRef, rangeRef)
 validPointWKaDF = offLib.getParamDF(parametersWKaTS[2]*1, timeRef, rangeRef)
 correlXKaDF = offLib.getParamDF(parametersXKaTS[4]*1, timeRef, rangeRef)
@@ -192,9 +219,11 @@ dataFrameListAtt[varNames.index('Ze_W')] = \
                           offsetWKaDF*1, validPointWKaDF, 
                           thresholdPoints)
 
+percentDfXKa = offLib.getParamDF(parametersXKaTS[5]*1, timeRef, rangeRef)
 offsetXKaDF = offLib.getParamDF(parametersXKaTS[0]*1, timeRef, rangeRef)
 validPointXKaDF = offLib.getParamDF(parametersXKaTS[2]*1, timeRef, rangeRef)
 correlWKaDF = offLib.getParamDF(parametersWKaTS[4]*1, timeRef, rangeRef)
+
 offsetXKaDF = offsetXKaDF*(-1)
 dataFrameListAtt[varNames.index('Ze_X')] = \
    offLib.applyOffsetCorr(dataFrameListAtt[varNames.index('Ze_X')],
@@ -233,6 +262,39 @@ interpRelHumDF = pd.DataFrame(index=timeRef, columns=rangeRef,
                               data=interpRelHum.T)
 
 #-----------------------------
+
+
+#--Quality Flags--------------
+
+rainFlag = qFlag.getRainFlag(cloudNetFilePath, timeRef, 'rainFlag',
+                             year, month, day)
+rainFlagDF = offLib.getParamDF(rainFlag['rainFlag'], timeRef, rangeRef)
+
+lwpFlag = qFlag.getLwpFlag(hatproFileName, timeRef, 'lwpFlag',
+                           year, month, day)
+lwpFlagDF = offLib.getParamDF(lwpFlag['lwpFlag'], timeRef, rangeRef)
+
+
+#offset flag X band
+valPoinFlagXKaDF = qFlag.getFlag(validPointXKaDF, 300)
+corrFlagXKaDF = qFlag.getFlag(correlXKaDF, 0.70)
+
+finalFlagXKa = qFlag.getUnifiedFlag(rainFlagDF, lwpFlagDF,
+                                    corrFlagXKaDF, valPoinFlagXKaDF)
+
+finalFlagXKaDF = offLib.getParamDF(finalFlagXKa['flag'], timeRef, rangeRef) 
+
+
+#offset flag W band
+valPoinFlagWKaDF = qFlag.getFlag(validPointWKaDF, 300)
+corrFlagWKaDF = qFlag.getFlag(correlWKaDF, 0.70)
+
+finalFlagWKa = qFlag.getUnifiedFlag(rainFlagDF, lwpFlagDF,
+                                    corrFlagWKaDF, valPoinFlagWKaDF)
+
+finalFlagWKaDF = offLib.getParamDF(finalFlagWKa['flag'], timeRef, rangeRef) 
+#-----------------------------
+
 
 
 #--radar definitions --------
@@ -275,6 +337,15 @@ variableToCopy={'v_X':{'data':data, 'offset':0, 'outName':'rv_x'},
 dataCopiedDFList, epoch = offLib.getDataFrameList(fileList, 
                                                   variableToCopy)
 
+#it removes the clutter from X band
+dataFrameList = filt.removeClutter(dataCopiedDFList, variableToCopy, 'v_X', 700)
+dataFrameList = filt.removeClutter(dataCopiedDFList, variableToCopy, 'SW_X', 700)
+
+#it removes the clutter from Ka band
+dataFrameList = filt.removeClutter(dataCopiedDFList, variableToCopy, 'v_Ka', 400)
+dataFrameList = filt.removeClutter(dataCopiedDFList, variableToCopy, 'SW_Ka', 400)
+dataFrameList = filt.removeClutter(dataCopiedDFList, variableToCopy, 'LDR_Ka', 400)
+
 variableToCopyTemp={}
 for variable in variableToCopy.keys():
 
@@ -301,8 +372,23 @@ variableOutPut={'dbz_x':{'data':dataFrameListAtt[varNames.index('Ze_X')]},
                 'pia_x':{'data':interpAttDataList[varNames.index('Ze_X')]},
                 'pia_ka':{'data':interpAttDataList[varNames.index('Ze_Ka')]},
                 'pia_w':{'data':interpAttDataList[varNames.index('Ze_W')]},
-                'offset_x':{'data':offsetXKaDF},
-                'offset_w':{'data':offsetWKaDF},
+                'offset_x':{'data':offsetXKaDF*(-1)},
+                'offset_w':{'data':offsetWKaDF*(-1)},
+                #'valDat_x':{'data':validPointXKaDF},
+                #'valDat_w':{'data':validPointWKaDF},
+                #'correlation_X':{'data':correlXKaDF},
+                #'correlation_W':{'data':correlWKaDF},
+                #'corrFlag_x':{'data':corrFlagXKaDF},
+                #'pointFlag_x':{'data':valPoinFlagXKaDF},
+                #'corrFlag_w':{'data':corrFlagWKaDF},
+                #'pointFlag_w':{'data':valPoinFlagWKaDF},
+		#'rainFlag_x':{'data':rainFlagDF},
+		#'lwpFlag_x':{'data':lwpFlagDF},
+	        'Pres_Cl':{'data':interpPressDF},	
+                'RelHum_Cl':{'data':interpRelHumDF},
+		'Temp_Cl':{'data':interpTempDF},
+		'quality_flag_offset_x':{'data':finalFlagXKaDF},
+		'quality_flag_offset_w':{'data':finalFlagWKaDF},
               }
 
 #for indexWrite, timeStart in enumerate(timesBeginWrite):
@@ -322,12 +408,28 @@ nv_dim = writeData.createNvDimension(rootgrpOut, prefixL2)
     
 for varNameOut in variableOutPut.keys():
 
-    varFinalName, radar=varNameOut.split('_')
+    varListName = varNameOut.split('_')
+    if len(varListName) > 1:
+	varFinalName = '_'.join(varListName[:-1])
+        radar = varListName[-1]
+
+    else:
+	varFinalName = varListName[0]
+        radar = ''        
+ 
     dataDF = variableOutPut[varNameOut]['data']
-    dataToWrite = np.array(dataDF.astype(np.float32))
-    var_Written = writeData.createVariable(rootgrpOut, dataToWrite,
-                                           varFinalName, varNameOut,
-                                           radar, prefixL2)
+
+    if varFinalName == 'quality_flag_offset':
+	dataToWrite = np.array(dataDF.astype(np.uint16))
+        var_Written = writeData.createVariable(rootgrpOut, dataToWrite,
+                                               varFinalName, varNameOut,
+                                               radar, prefixL2, np.uint16)
+
+    else:
+        dataToWrite = np.array(dataDF.astype(np.float32))
+        var_Written = writeData.createVariable(rootgrpOut, dataToWrite,
+                                               varFinalName, varNameOut,
+                                               radar, prefixL2, np.float32)
 
 #It writes the data from L1 in L2 file
 for varNameOut in variableToCopy.keys():
@@ -344,11 +446,11 @@ for varNameOut in variableToCopy.keys():
 
 
     varFinalName, radar=varNameOut.split('_')        
-    dataDF = variableToCopy[varNameOut]['data']
+    dataDF = variableToCopy[varNameOut]['data'] 
     dataToWrite = np.array(dataDF.astype(np.float32))
     var_Written = writeData.createVariable(rootgrpOut, dataToWrite,
-                                           varFinalName, varNameOut,
-                                           radar, prefixL2)
+                                               varFinalName, varNameOut,
+                                               radar, prefixL2, np.float32)
         
 
 for varNameOut in externalData.keys():

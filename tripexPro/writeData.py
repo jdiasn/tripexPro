@@ -38,7 +38,7 @@ def createNvDimension(rootgrpOut, prefix):
    try:
       rootgrpOut.createDimension('nv',2)
       nv = rootgrpOut.createVariable('nv',np.float32,('nv',))
-      nv[:] = 2
+      nv[:] = np.array([0,1])
       return nv
     
    except:
@@ -66,7 +66,7 @@ def createRangeDimension(rootgrpOut, rangeRef, prefix):
    try:
       rootgrpOut.createDimension('range', len(rangeRef))
       range_ref = rootgrpOut.createVariable('range', np.float32,
-		                           ('range',), fill_value=np.nan)
+		                           ('range',))
       range_ref[:] = rangeRef
       range_ref = dataAttribute.rangeAttributes(range_ref)
       return range_ref
@@ -75,15 +75,23 @@ def createRangeDimension(rootgrpOut, rangeRef, prefix):
       return None
 
 
-def createVariable(rootgrpOut, variable, varName, varNameOutput, radar, prefix):
+def createVariable(rootgrpOut, variable, varName, 
+                   varNameOutput, radar, prefix,
+                   dataType):
 
    dataAttribute = defineAttr(prefix)
 
    try:
-    
-      var_nearest = rootgrpOut.createVariable(varNameOutput, np.float32,
-                                             ('time','range'), 
-                                             fill_value=np.nan)
+     
+      if dataType == np.uint16: 
+          var_nearest = rootgrpOut.createVariable(varNameOutput, dataType,
+                                                  ('time','range'))
+
+      else:
+          var_nearest = rootgrpOut.createVariable(varNameOutput, dataType,
+                                                  ('time','range'), 
+                                                  fill_value=np.nan)
+ 
       var_nearest[:] = variable
       var_nearest = dataAttribute.variableAttribute(var_nearest,
                                                    varName,
