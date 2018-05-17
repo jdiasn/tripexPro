@@ -42,7 +42,7 @@ def variableAttribute(variable, varName, radar):
 
       commentVel = 'Sign convention: Negative when moving towards the radar. Note that the radar antenna had to continuously rotate (bird bath scan) in order to record data. The antenna seemed to had a slight mis-pointing thus a sinusoidal modulation is sometimes visible depending on the horizontal wind. This signature disappears with longer averaging.'
 
-      commentOff = 'After reflectivities have been corrected for gas attenuation for each frequency, the remaining offsets due to wet radome etc. have been estimated by using one hourly data, regions at least 1km above the zero degree isotherm and reflectivities smaller than -5dBz. Assuming the Ka-band radar as our reference, we assume that for X and Ka-band these low-reflectivity ice clouds represent Rayleigh scatterers and hence the reflectivities should match. A quality flag is provided indicating the reliability of the correction applied. The user can simply go back to the attenuation-only corrected reflectivities by subtracting this offset to the corrected reflectivity values.'
+      commentOff = 'After reflectivities have been corrected for gas attenuation for each frequency, the remaining offsets due to wet radome etc. have been estimated by using 30 min of data, regions at least 1km above the zero degree isotherm and reflectivities smaller than -5dBz. Assuming the Ka-band radar as our reference, we assume that for X and Ka-band these low-reflectivity ice clouds represent Rayleigh scatterers and hence the reflectivities should match. A quality flag is provided indicating the reliability of the correction applied. The user can simply go back to the attenuation-only corrected reflectivities by subtracting this offset to the corrected reflectivity values.'
 
    elif radar == 'Ka':
       commentZe = 'The original reflectivities have been re-gridded onto a common time-height grid and have been corrected for gas attenuation; relative calibration has been performed with rain cases observed together with PARSIVEL.'
@@ -54,7 +54,7 @@ def variableAttribute(variable, varName, radar):
       
       commentVel = 'Sign convention: Negative when moving towards the radar'
 
-      commentOff = 'After reflectivities have been corrected for gas attenuation for each frequency, the remaining offsets due to wet radome, liquid water attenuation, etc. have been estimated by using one hourly data, regions at least 1km above the zero degree isotherm and reflectivities smaller than -10dBZ. Assuming the Ka-band radar as our reference, we assume that for W and Ka-band these low-reflectivity ice clouds represent Rayleigh scatterers and hence the reflectivities should match. A quality flag is provided indicating the reliability of the correction applied. The user can simply go back to the attenuation-only corrected reflectivities by subtracting this offset to the corrected reflectivity values'
+      commentOff = 'After reflectivities have been corrected for gas attenuation for each frequency, the remaining offsets due to wet radome, liquid water attenuation, etc. have been estimated by using 30 min data, regions at least 1km above the zero degree isotherm and reflectivities smaller than -10dBZ. Assuming the Ka-band radar as our reference, we assume that for W and Ka-band these low-reflectivity ice clouds represent Rayleigh scatterers and hence the reflectivities should match. A quality flag is provided indicating the reliability of the correction applied. The user can simply go back to the attenuation-only corrected reflectivities by subtracting this offset to the corrected reflectivity values'
 
    if varName == 'dbz':
       standard_name = 'equivalent_reflectivity_factor'
@@ -112,6 +112,11 @@ def variableAttribute(variable, varName, radar):
       long_name = 'altitude above mean sea level'
       finalComment = 'altitude above mean sea level of the reference radar (W-Band) location'
       units = 'm'
+
+   elif varName == 'quality_flag_offset':
+      long_name = 'quality flag indicating reliability of the offset correction for the {radar}-Band data'.format(radar=radar)
+      finalComment = 'Bits 0 to 5: empty; Bit 6: 0 if the liquid water path is less than 200 g m-2, 1 if the liquid water path is greater than 200 g m-2; Bit 7: 0 no rain, 1 rain; Bits 8 to 13: empty; Bit 14: 0 if offset correlation is greater than 0.7, 1 if offset correlation is less than 0.7; Bit 15: 0 if the number of points used to calculate the of offset is greater than 300, 1 if the number of points is less than 300. If Bit 14 or higher is set, we recommend not to use the calculated offsets but e.g. rather interpolate between time periods with high-quality offset estimates.'
+      units = '1'
 
    try: 
          variable.standard_name = standard_name
