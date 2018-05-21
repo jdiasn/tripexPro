@@ -299,16 +299,23 @@ finalFlagWKaDF = offLib.getParamDF(finalFlagWKa['flag'], timeRef, rangeRef)
 
 #--radar definitions --------
 
+coordenates = {'lat':{'data':50.9086},
+	      'lon':{'data':6.4135},
+	      'zsl':{'data':112.5}
+}
+
+
+
 externalData = {'freq_sb_x':{'data':np.array(9.4*10**9,np.float32)},
 		'freq_sb_ka':{'data':np.array(35.5*10**9,np.float32)},
 		'freq_sb_w':{'data':np.array(94*10**9,np.float32)},
 		'radar_beam_width_x':{'data':np.array(1.3,np.float32)},
 		'radar_beam_width_ka':{'data':np.array(0.6,np.float32)},
 		'radar_beam_width_w':{'data':np.array(0.5,np.float32)},
-		'lat':{'data':50.9086},
-		'lon':{'data':6.4135},
-		'zsl':{'data':112.5}
 }
+
+
+#pd.to_timedelta(2,)
 
 
 bnds = {'time_bnds':{'data':np.ones((len(timeRef), 2))*\
@@ -402,10 +409,42 @@ timeRefUnixWrt = np.array(timeRef, float)
 timeRefUnixWrt = timeRefUnixWrt/10.**9
   
 rootgrpOut = writeData.createNetCdf(outPutFilePath, prefixL2)
-time_ref = writeData.createTimeDimension(rootgrpOut, timeRefUnixWrt, prefixL2)
-range_ref = writeData.createRangeDimension(rootgrpOut, rangeRef, prefixL2)
+
+
+for varNameOut in sorted(coordenates.keys()):
+
+    varListName = varNameOut.split('_')
+    if len(varListName) > 1:
+	    varFinalName = '_'.join(varListName[:-1])
+            sensor = varListName[-1]
+    else:
+	varFinalName = varListName[0]
+        sensor = ''        
+    dataDF = coordenates[varNameOut]['data']
+    dataToWrite = np.array(dataDF)
+    var_Written = writeData.createOneValvariable(rootgrpOut, dataToWrite,
+                                                varFinalName, sensor, prefixL2)
+
+#for varNameOut in sorted(bnds.keys()):
+	
+#    dimName, varName = varNameOut.split('_')
+#    dataToWrite = bnds[varNameOut]['data']
+#    var_Written = writeData.createBndsVariable(rootgrpOut, dataToWrite,
+#                                               varNameOut, dimName)
+ 
 nv_dim = writeData.createNvDimension(rootgrpOut, prefixL2)
-    
+ 
+time_ref = writeData.createTimeDimension(rootgrpOut, timeRefUnixWrt, prefixL2)
+dataToWrite = bnds['time_bnds']['data']
+var_Written = writeData.createBndsVariable(rootgrpOut, dataToWrite,
+                                           'time_bnds', 'time')
+ 
+range_ref = writeData.createRangeDimension(rootgrpOut, rangeRef, prefixL2)
+dataToWrite = bnds['range_bnds']['data']
+var_Written = writeData.createBndsVariable(rootgrpOut, dataToWrite,
+                                           'range_bnds', 'range')
+
+
 for varNameOut in sorted(variableOutPut.keys()):
 
     varListName = varNameOut.split('_')
@@ -467,12 +506,6 @@ for varNameOut in sorted(externalData.keys()):
     var_Written = writeData.createOneValvariable(rootgrpOut, dataToWrite,
                                                 varFinalName, sensor, prefixL2)
 
-for varNameOut in sorted(bnds.keys()):
-	
-    dimName, varName = varNameOut.split('_')
-    dataToWrite = bnds[varNameOut]['data']
-    var_Written = writeData.createBndsVariable(rootgrpOut, dataToWrite,
-                                               varNameOut, dimName)
  
 
 rootgrpOut.close()

@@ -5,6 +5,7 @@ def globalAttributes(rootgrpOut):
    rootgrpOut.Contact_person = 'Stefan Kneifel, skneifel@meteo.uni-koeln.de'
    rootgrpOut.Source = 'METEOR-50-DX (X-Band radar owned by KIT), Metek MIRA-35 (Ka-Band radar JOYRAD-35 owned by IGMK), RPG-FMCW-94-SP (W-Band radar JOYRAD-94 owned by IGMK)' 
    rootgrpOut.History = 'Data processed with tripexPro.py by University of Cologne'
+   rootgrpOut.Dependencies = 'External'
    rootgrpOut.Conventions = 'CF-1.6 where applicable'
    rootgrpOut.Author = 'Jose Dias Neto (jdiasnet@uni-koeln.de)'
    rootgrpOut.Comments = 'The original radar moment data were re-gridded in height and time; attenuation and offset corrections have been applied but can be reversed by the user since the corrections applied are stored; polarimetry data is limited to LDR since all radar data are from zenith-only operation.'
