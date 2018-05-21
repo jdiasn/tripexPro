@@ -406,7 +406,7 @@ time_ref = writeData.createTimeDimension(rootgrpOut, timeRefUnixWrt, prefixL2)
 range_ref = writeData.createRangeDimension(rootgrpOut, rangeRef, prefixL2)
 nv_dim = writeData.createNvDimension(rootgrpOut, prefixL2)
     
-for varNameOut in variableOutPut.keys():
+for varNameOut in sorted(variableOutPut.keys()):
 
     varListName = varNameOut.split('_')
     if len(varListName) > 1:
@@ -432,7 +432,7 @@ for varNameOut in variableOutPut.keys():
                                                radar, prefixL2, np.float32)
 
 #It writes the data from L1 in L2 file
-for varNameOut in variableToCopy.keys():
+for varNameOut in sorted(variableToCopy.keys()):
 
     #it removes the noise from v_Ka
     if varNameOut == 'rv_ka':
@@ -453,7 +453,7 @@ for varNameOut in variableToCopy.keys():
                                                radar, prefixL2, np.float32)
         
 
-for varNameOut in externalData.keys():
+for varNameOut in sorted(externalData.keys()):
 
     varListName = varNameOut.split('_')
     if len(varListName) > 1:
@@ -467,7 +467,7 @@ for varNameOut in externalData.keys():
     var_Written = writeData.createOneValvariable(rootgrpOut, dataToWrite,
                                                 varFinalName, sensor, prefixL2)
 
-for varNameOut in bnds.keys():
+for varNameOut in sorted(bnds.keys()):
 	
     dimName, varName = varNameOut.split('_')
     dataToWrite = bnds[varNameOut]['data']
