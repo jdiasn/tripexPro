@@ -131,14 +131,14 @@ sensParam = {'x':{'a':1.05258702e+01, 'b':4.76220165e-05},
              'w':{'a':5.76194550e+00, 'b':1.70653858e-07},
             }
 
-#dataFrameList = filt.sensitivityFilter(dataFrameList, variable,
-#                                       'Ze_X', sensParam['x'])
+dataFrameList = filt.sensitivityFilter(dataFrameList, variable,
+                                       'Ze_X', sensParam['x'])
 
-#dataFrameList = filt.sensitivityFilter(dataFrameList, variable,
-#                                       'Ze_Ka', sensParam['ka'])
+dataFrameList = filt.sensitivityFilter(dataFrameList, variable,
+                                       'Ze_Ka', sensParam['ka'])
 
-#dataFrameList = filt.sensitivityFilter(dataFrameList, variable,
-#                                       'Ze_W', sensParam['w'])
+dataFrameList = filt.sensitivityFilter(dataFrameList, variable,
+                                       'Ze_W', sensParam['w'])
 
 
 #it removes extreme values from reflectively velocity 
