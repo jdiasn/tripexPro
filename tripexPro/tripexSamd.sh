@@ -23,16 +23,16 @@ hatproFileID='sups_joy_mwr00_l2_clwvi_v01'
 #-----------------------------
 
 #--Time Definition------------
-years=('2015' '2016')
-#years=('2015') #test
+#years=('2015' '2016')
+years=('2015') #test
 #---year
 for year in ${years[@]}
 do
 
 if [ $year == '2015' ]
 then
-months=('11' '12')
-#months=('11') #test
+#months=('11' '12')
+months=('11') #test
 fi
 
 if [ $year == '2016' ]
@@ -46,10 +46,10 @@ do
 
 if [ $month == '11' ]
 then
-days=('11' '12' '13' '14' '15' '16' '17' '18' '19' '20'\
-      '21' '22' '23' '24' '25' '26' '27' '28' '29' '30')
+#days=('11' '12' '13' '14' '15' '16' '17' '18' '19' '20'\
+#      '21' '22' '23' '24' '25' '26' '27' '28' '29' '30')
 #days=('20') #test
-#days=('24') #test
+days=('24') #test
 fi
 
 if [ $month == '12' ]
