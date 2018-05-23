@@ -211,3 +211,23 @@ def temperatureMask(shiftedTempMaskDF, dataFrameListToMask,
         
     return dfList
 
+
+def getRangeBnds(rangeRef, rangeTolerance):
+    range_bnds = np.ones((len(rangeRef),2))
+    range_bnds[:,0:1] = (rangeRef - rangeTolerance).reshape(len(rangeRef),1)
+    range_bnds[:,1:2] = (rangeRef + rangeTolerance).reshape(len(rangeRef),1)
+
+    return range_bnds
+
+
+def getTimeBnds(timeRef, timeTolerance):
+
+    time_bnds = np.ones((len(timeRef),2))
+    time_bnds[:,0:1] = np.array(timeRef - pd.to_timedelta(2,'s'), float).reshape(len(timeRef),1)
+    time_bnds[:,1:2] = np.array(timeRef + pd.to_timedelta(2,'s'), float).reshape(len(timeRef),1)
+    time_bnds = time_bnds / 10**9
+    
+    return time_bnds
+
+
+

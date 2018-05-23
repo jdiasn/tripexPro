@@ -120,26 +120,42 @@ interpTempDF = pd.DataFrame(index=timeRef, columns=rangeRef,
 
 #-----------------------------
 
+#print interpTempDF[100]
+
+#--Copy press from CLOUDNET----
+resampledPress = attLib.getResampledTimeRange(rangeRef, rangeTolerance, timeRef,
+                                              time, timeTolerance, press, year,
+                                              month, day, height_M)
+
+interpPress, qualityFlagPress = attLib.getInterpData(time, timeRef, height_M,
+                                                    resampledPress, press,
+                                                    rangeRef)
+
+interpPressDF = pd.DataFrame(index=timeRef, columns=rangeRef, 
+                             data=interpPress.T)
+
+#-----------------------------
+
+#print interpPressDF[100]
+
+#--Copy relHum from CLOUDNET----
+resampledRelHum = attLib.getResampledTimeRange(rangeRef, rangeTolerance, timeRef,
+                                               time, timeTolerance, relHum, year,
+                                               month, day, height_M)
+
+interpRelHum, qualityFlagRelHum = attLib.getInterpData(time, timeRef, height_M,
+                                                       resampledRelHum, relHum,
+                                                       rangeRef)
+
+interpRelHumDF = pd.DataFrame(index=timeRef, columns=rangeRef, 
+                              data=interpRelHum.T)
+
+#-----------------------------
+#print interpRelHumDF[100]
 
 
 #--Offset correction----------
 dataFrameList, epoch = offLib.getDataFrameList(fileList, variable)
-
-#Sensitivity parameters
-sensParam = {'x':{'a':1.05258702e+01, 'b':4.76220165e-05},
-             'ka':{'a':8.87812466e+00, 'b':1.51414427e-06},
-             'w':{'a':5.76194550e+00, 'b':1.70653858e-07},
-            }
-
-dataFrameList = filt.sensitivityFilter(dataFrameList, variable,
-                                       'Ze_X', sensParam['x'])
-
-dataFrameList = filt.sensitivityFilter(dataFrameList, variable,
-                                       'Ze_Ka', sensParam['ka'])
-
-dataFrameList = filt.sensitivityFilter(dataFrameList, variable,
-                                       'Ze_W', sensParam['w'])
-
 
 #it removes extreme values from reflectively velocity 
 dataFrameList = filt.removeOutliersZeKa(dataFrameList, variable)
@@ -149,8 +165,9 @@ dataFrameList = filt.removeClutter(dataFrameList, variable, 'Ze_X', 700)
 dataFrameList = filt.removeClutter(dataFrameList, variable, 'Ze_Ka', 400)
 
 
-shiftedTempDF = interpTempDF*1
+shiftedTempDF = interpTempDF.copy()
 shiftedTempDF = offLib.getShiftedTemp(shiftedTempDF, timeRef, rangeRef)
+
 
 #Attenuation correction
 dataFrameListAtt = attLib.applyAttCorr(dataFrameList*1, interpAttDataList, variable)
@@ -233,35 +250,24 @@ dataFrameListAtt[varNames.index('Ze_X')] = \
 #-----------------------------
 
 
+#Sensitivity threshold--------
+sensParam = {'x':{'a':1.05258702e+01, 'b':4.76220165e-05},
+             'ka':{'a':8.87812466e+00, 'b':1.51414427e-06},
+             'w':{'a':5.76194550e+00, 'b':1.70653858e-07},
+            }
 
-#--Copy press from CLOUDNET----
-resampledPress = attLib.getResampledTimeRange(rangeRef, rangeTolerance, timeRef,
-                                              time, timeTolerance, press, year,
-                                              month, day, height_M)
+dataFrameList = filt.sensitivityFilter(dataFrameListAtt, variable,
+                                       'Ze_X', sensParam['x'])
 
-interpPress, qualityFlagPress = attLib.getInterpData(time, timeRef, height_M,
-                                                    resampledPress, tempCel,
-                                                    rangeRef)
+dataFrameList = filt.sensitivityFilter(dataFrameListAtt, variable,
+                                       'Ze_Ka', sensParam['ka'])
 
-interpPressDF = pd.DataFrame(index=timeRef, columns=rangeRef, 
-                             data=interpPress.T)
-
+dataFrameList = filt.sensitivityFilter(dataFrameListAtt, variable,
+                                       'Ze_W', sensParam['w'])
 #-----------------------------
 
 
-#--Copy relHum from CLOUDNET----
-resampledRelHum = attLib.getResampledTimeRange(rangeRef, rangeTolerance, timeRef,
-                                               time, timeTolerance, relHum, year,
-                                               month, day, height_M)
 
-interpRelHum, qualityFlagRelHum = attLib.getInterpData(time, timeRef, height_M,
-                                                       resampledPress, relHum,
-                                                       rangeRef)
-
-interpRelHumDF = pd.DataFrame(index=timeRef, columns=rangeRef, 
-                              data=interpRelHum.T)
-
-#-----------------------------
 
 
 #--Quality Flags--------------
@@ -318,13 +324,8 @@ externalData = {'freq_sb_x':{'data':np.array(9.4*10**9,np.float32)},
 #pd.to_timedelta(2,)
 
 
-bnds = {'time_bnds':{'data':np.ones((len(timeRef), 2))*\
-		     np.array([np.float(timeTolerance[:-1])*(-1),
-                               np.float(timeTolerance[:-1])])},
-        'range_bnds':{'data':np.ones((len(rangeRef),2))*\
-                      np.array([np.float(rangeTolerance)*(-1), 
-                                np.float(rangeTolerance)])}
-
+bnds = {'time_bnds':{'data': offLib.getTimeBnds(timeRef, timeTolerance)},
+        'range_bnds':{'data':offLib.getRangeBnds(rangeRef, rangeTolerance)}
 }
 
 #-----------------------------
@@ -379,8 +380,8 @@ variableOutPut={'dbz_x':{'data':dataFrameListAtt[varNames.index('Ze_X')]},
                 'pia_x':{'data':interpAttDataList[varNames.index('Ze_X')]},
                 'pia_ka':{'data':interpAttDataList[varNames.index('Ze_Ka')]},
                 'pia_w':{'data':interpAttDataList[varNames.index('Ze_W')]},
-                'offset_x':{'data':offsetXKaDF*(-1)},
-                'offset_w':{'data':offsetWKaDF*(-1)},
+                'offset_x':{'data':offsetXKaDF},
+                'offset_w':{'data':offsetWKaDF},
                 #'valDat_x':{'data':validPointXKaDF},
                 #'valDat_w':{'data':validPointWKaDF},
                 #'correlation_X':{'data':correlXKaDF},
@@ -391,9 +392,9 @@ variableOutPut={'dbz_x':{'data':dataFrameListAtt[varNames.index('Ze_X')]},
                 #'pointFlag_w':{'data':valPoinFlagWKaDF},
 		#'rainFlag_x':{'data':rainFlagDF},
 		#'lwpFlag_x':{'data':lwpFlagDF},
-	        'Pres_Cl':{'data':interpPressDF},	
-                'RelHum_Cl':{'data':interpRelHumDF},
-		'Temp_Cl':{'data':interpTempDF},
+#	        'Pres_Cl':{'data':interpPressDF},	
+#               'RelHum_Cl':{'data':interpRelHumDF},
+#		'Temp_Cl':{'data':interpTempDF},
 		'quality_flag_offset_x':{'data':finalFlagXKaDF},
 		'quality_flag_offset_w':{'data':finalFlagWKaDF},
               }
@@ -402,7 +403,7 @@ variableOutPut={'dbz_x':{'data':dataFrameListAtt[varNames.index('Ze_X')]},
         
 dateName = start.strftime('%Y%m%d')
     
-outPutFile = ('_').join([prefixL2, dateName+'.nc'])
+outPutFile = ('_').join([prefixL2, dateName+'000000.nc'])
 outPutFilePath = ('/').join([outputPath, outPutFile])
     
 timeRefUnixWrt = np.array(timeRef, float)
