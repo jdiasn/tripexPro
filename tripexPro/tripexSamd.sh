@@ -11,9 +11,10 @@ prefixCloudNet='juelich_categorize.nc'
 inputPathL1='/work2/tripex/tripex_level_01'
 prefixL1='tripex_3fr_L1_mom'
 
-outputPathL2='/work2/tripex/samd'
+#outputPathL2='/work2/tripex/samd'
 #outputPathL2='/data/optimice/tripex/tripex_level_02_samd'
 #outputPathL2='/home/jdias/Projects/radarDataResampled/testL2'
+outputPathL2='/data/optimice/tripex/testOffset'
 prefixL2='tripex_joy_tricr00_l1_any_v00'
 
 
@@ -48,8 +49,8 @@ if [ $month == '11' ]
 then
 #days=('11' '12' '13' '14' '15' '16' '17' '18' '19' '20'\
 #      '21' '22' '23' '24' '25' '26' '27' '28' '29' '30')
-#days=('20') #test
-days=('24') #test
+days=('20') #test
+#days=('24') #test
 fi
 
 if [ $month == '12' ]

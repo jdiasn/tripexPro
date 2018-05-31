@@ -107,6 +107,15 @@ qualityFlagList = attLib.changeAttListOrder(qualityFlagList,
 
 #--Copy temp from CLOUDNET----
 tempCel = temp - 273.15
+
+#print 'temp'
+#print tempCel[0]
+#print 'press'
+#print press[0]
+#print 'hum'
+#print relHum[0]
+
+
 resampledTemp = attLib.getResampledTimeRange(rangeRef, rangeTolerance, timeRef,
                                              time, timeTolerance, tempCel, year,
                                              month, day, height_M)
@@ -256,13 +265,14 @@ sensParam = {'x':{'a':1.05258702e+01, 'b':4.76220165e-05},
              'w':{'a':5.76194550e+00, 'b':1.70653858e-07},
             }
 
-dataFrameList = filt.sensitivityFilter(dataFrameListAtt, variable,
+#or dataFrameListAtt it should be att
+dataFrameListAtt = filt.sensitivityFilter(dataFrameListAtt, variable,
                                        'Ze_X', sensParam['x'])
 
-dataFrameList = filt.sensitivityFilter(dataFrameListAtt, variable,
+dataFrameListAtt = filt.sensitivityFilter(dataFrameListAtt, variable,
                                        'Ze_Ka', sensParam['ka'])
 
-dataFrameList = filt.sensitivityFilter(dataFrameListAtt, variable,
+dataFrameListAtt = filt.sensitivityFilter(dataFrameListAtt, variable,
                                        'Ze_W', sensParam['w'])
 #-----------------------------
 

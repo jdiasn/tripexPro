@@ -202,9 +202,10 @@ try:
 
    resampledTimeRange = np.array(resampledTimeRange.T.astype(np.float32))
    var_resampled = writeData.createVariable(rootgrpOut, resampledTimeRange,
-                                        varFinalName, varNameOutput, radar, prefixL1)
+                                        varFinalName, varNameOutput, radar, 
+                                        prefixL1, np.float32)
 
-except:
+except IOError:
    print 'No Data To Write :('
 
 rootgrpOut.close()
