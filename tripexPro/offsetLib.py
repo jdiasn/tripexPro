@@ -19,7 +19,7 @@ def getDataFrameList(fileList, variableDic):
     #print fileName 
         rootgrpRe = Dataset(fileName, 'r')
         times = rootgrpRe.variables['time'][:]
-        ranges = rootgrpRe.variables['altitude'][:]
+        ranges = rootgrpRe.variables['range'][:]
     
         epoch = trLib.getEpochTime(rootgrpRe, 'X')
         times = epoch+pd.to_timedelta(times, unit='s')

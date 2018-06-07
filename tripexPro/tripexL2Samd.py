@@ -165,6 +165,8 @@ interpRelHumDF = pd.DataFrame(index=timeRef, columns=rangeRef,
 
 #--Offset correction----------
 dataFrameList, epoch = offLib.getDataFrameList(fileList, variable)
+#dataFrameListNoCorrec, epoch = offLib.getDataFrameList(fileList, variable)
+
 
 #it removes extreme values from reflectively velocity 
 dataFrameList = filt.removeOutliersZeKa(dataFrameList, variable)
@@ -195,7 +197,7 @@ dataFrameListToXKa = attLib.applyAttCorr(dataFrameList*1, interpAttDataList,
 					  variable)
 
 dataFrameListMaskedXKa = offLib.getMaskedDF(dataFrameListToXKa, variable, 
-                                            -5, -20, heightThreshold,
+                                            0, -15, heightThreshold,
                                             offsetPairXKa)
 
 maskedTempDFlistXKa = offLib.temperatureMask(shiftedTempDF,
@@ -216,7 +218,7 @@ dataFrameListToKaW = attLib.applyAttCorr(dataFrameList*1, interpAttDataList,
 					  variable)
 
 dataFrameListMaskedKaW = offLib.getMaskedDF(dataFrameListToKaW, variable, 
-                                            -10, -35, heightThreshold,
+                                            -10, -30, heightThreshold,
                                             offsetPairKaW)
 
 maskedTempDFlistKaW = offLib.temperatureMask(shiftedTempDF,
@@ -258,7 +260,7 @@ dataFrameListAtt[varNames.index('Ze_X')] = \
 
 #-----------------------------
 
-
+# ---> replace the ln equation to log10 equation and coefficients 
 #Sensitivity threshold--------
 sensParam = {'x':{'a':1.05258702e+01, 'b':4.76220165e-05},
              'ka':{'a':8.87812466e+00, 'b':1.51414427e-06},
@@ -392,19 +394,19 @@ variableOutPut={'dbz_x':{'data':dataFrameListAtt[varNames.index('Ze_X')]},
                 'pia_w':{'data':interpAttDataList[varNames.index('Ze_W')]},
                 'offset_x':{'data':offsetXKaDF},
                 'offset_w':{'data':offsetWKaDF},
-                #'valDat_x':{'data':validPointXKaDF},
-                #'valDat_w':{'data':validPointWKaDF},
-                #'correlation_X':{'data':correlXKaDF},
-                #'correlation_W':{'data':correlWKaDF},
-                #'corrFlag_x':{'data':corrFlagXKaDF},
-                #'pointFlag_x':{'data':valPoinFlagXKaDF},
-                #'corrFlag_w':{'data':corrFlagWKaDF},
-                #'pointFlag_w':{'data':valPoinFlagWKaDF},
-		#'rainFlag_x':{'data':rainFlagDF},
-		#'lwpFlag_x':{'data':lwpFlagDF},
-#	        'Pres_Cl':{'data':interpPressDF},	
-#               'RelHum_Cl':{'data':interpRelHumDF},
-#		'Temp_Cl':{'data':interpTempDF},
+                'valDat_x':{'data':validPointXKaDF},
+                'valDat_w':{'data':validPointWKaDF},
+                'correlation_X':{'data':correlXKaDF},
+                'correlation_W':{'data':correlWKaDF},
+                'corrFlag_x':{'data':corrFlagXKaDF},
+                'pointFlag_x':{'data':valPoinFlagXKaDF},
+                'corrFlag_w':{'data':corrFlagWKaDF},
+                'pointFlag_w':{'data':valPoinFlagWKaDF},
+		'rainFlag_x':{'data':rainFlagDF},
+		'lwpFlag_x':{'data':lwpFlagDF},
+	        'Pres_Cl':{'data':interpPressDF},	
+                'RelHum_Cl':{'data':interpRelHumDF},
+ 		'Temp_Cl':{'data':interpTempDF},
 		'quality_flag_offset_x':{'data':finalFlagXKaDF},
 		'quality_flag_offset_w':{'data':finalFlagWKaDF},
               }
