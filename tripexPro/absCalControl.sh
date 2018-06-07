@@ -4,13 +4,13 @@
 #data set 
 #
 #--File Definition------------
-inputPath='/home/jdias/Projects/radarData'
-outputPath='/home/jdias/Projects/radarDataResampled/absCalCorr'
+inputPath='/work/radarData'
+outputPath='/data/optimice/tripex/tripex_level_01'
 prefix='tripex_3fr_L1_mom'
 #-----------------------------
 
 #--Time Definition------------
-years=('2016')
+years=('2015')
 
 #---year
 for year in ${years[@]}
@@ -33,7 +33,7 @@ do
 
 if [ $month == '08' ]
 then
-days=('11') #test
+days=('27') #test
 fi
 
 if [ $month == '12' ]

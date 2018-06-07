@@ -5,21 +5,21 @@
 #
 #--File Definition------------
 inputPath='/work/radarData'
-outputPath='/data/optimice/tripex/testOffset'
+outputPath='/data/optimice/tripex/tripex_level_01'
 prefix='tripex_3fr_L1_mom'
 #-----------------------------
 
 #--Time Definition------------
-#years=('2015' '2016')
-years=('2015') #test
+years=('2015' '2016')
+#years=('2015') #test
 #---year
 for year in ${years[@]}
 do
 
 if [ $year == '2015' ]
 then
-#months=('11' '12')
-months=('11') #test
+months=('11' '12')
+#months=('11') #test
 fi
 
 if [ $year == '2016' ]
@@ -33,9 +33,9 @@ do
 
 if [ $month == '11' ]
 then
-#days=('11' '12' '13' '14' '15' '16' '17' '18' '19' '20'\
-#      '21' '22' '23' '24' '25' '26' '27' '28' '29' '30')
-days=('20') #test
+days=('11' '12' '13' '14' '15' '16' '17' '18' '19' '20'\
+      '21' '22' '23' '24' '25' '26' '27' '28' '29' '30')
+#days=('20') #test
 fi
 
 if [ $month == '12' ]
@@ -55,13 +55,13 @@ fi
 #---day
 for day in ${days[@]}
 do
-#beguinTimes=('00' '01' '02' '03' '04' '05' '06' '07' '08' '09' '10'\
-#             '11' '12' '13' '14' '15' '16' '17' '18' '19' '20' '21'\
-#             '22' '23' )
+beguinTimes=('00' '01' '02' '03' '04' '05' '06' '07' '08' '09' '10'\
+             '11' '12' '13' '14' '15' '16' '17' '18' '19' '20' '21'\
+             '22' '23' )
 #beguinTimes=('00' '01' '02' '03' '04' '05' '06' '07' '08' '09' '10'\
 #             '11' '12' )
 #
-beguinTimes=('08') #test
+#beguinTimes=('08') #test
 
 echo Date: $(tput setaf 1) $year $month $day $(tput sgr 0)
 #---time

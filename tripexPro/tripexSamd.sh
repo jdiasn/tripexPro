@@ -8,13 +8,14 @@ inputCloudNetPath='/data/data_hatpro/jue/cloudnet/juelich/processed/categorize'
 prefixCloudNet='juelich_categorize.nc'
 
 #inputPathL1='/home/jdias/Projects/radarDataResampled/data'
-inputPathL1='/work2/tripex/tripex_level_01'
+inputPathL1='/data/optimice/tripex/tripex_level_01'
 prefixL1='tripex_3fr_L1_mom'
 
 #outputPathL2='/work2/tripex/samd'
+#outputPathL2='/data/optimice/tripex/tripex_level_02_NOSENS'
 #outputPathL2='/data/optimice/tripex/tripex_level_02_samd'
-#outputPathL2='/home/jdias/Projects/radarDataResampled/testL2'
-outputPathL2='/data/optimice/tripex/testOffset'
+outputPathL2='/data/optimice/tripex/tripex_level_02_test'
+#outputPathL2='/data/optimice/tripex/testOffset'
 prefixL2='tripex_joy_tricr00_l1_any_v00'
 
 
@@ -24,16 +25,17 @@ hatproFileID='sups_joy_mwr00_l2_clwvi_v01'
 #-----------------------------
 
 #--Time Definition------------
-#years=('2015' '2016')
-years=('2015') #test
+years=('2015' '2016')
+#years=('2015') #test
 #---year
 for year in ${years[@]}
 do
 
 if [ $year == '2015' ]
 then
-#months=('11' '12')
-months=('11') #test
+months=('11' '12')
+#months=('12') #test
+#months=('11') #test
 fi
 
 if [ $year == '2016' ]
@@ -45,11 +47,18 @@ fi
 for month in ${months[@]}
 do
 
+
+if [ $month == '08' ]
+then
+days=('27') #test
+fi
+
+
 if [ $month == '11' ]
 then
-#days=('11' '12' '13' '14' '15' '16' '17' '18' '19' '20'\
-#      '21' '22' '23' '24' '25' '26' '27' '28' '29' '30')
-days=('20') #test
+days=('11' '12' '13' '14' '15' '16' '17' '18' '19' '20'\
+      '21' '22' '23' '24' '25' '26' '27' '28' '29' '30')
+#days=('19') #test
 #days=('24') #test
 fi
 
@@ -60,7 +69,7 @@ days=('01' '02' '03' '04' '05' '06' '07' '08' '09' '10'\
       '21' '22' '23' '24' '25' '26' '27' '28' '29' '30'\
       '31')
 #days=('04' '08' '21' '31')
-#days=('31')
+#days=('17')
 fi
 
 if [ $month == '01' ]
