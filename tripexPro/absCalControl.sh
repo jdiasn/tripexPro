@@ -77,46 +77,46 @@ rangeFreq=30
 rangeTolerance=17
 #-----------------------------
 
-#--X band Radar setup---------
-#
-radar='X'
-rangeOffSet=-15.5
-variables=('Ze' 'vd')
-zeOffset=0 #dB
-for variable in ${variables[@]}
-do
-python tripexL1.py $inputPath $outputPath $prefix $year $month \
-                    $day $beguinTime $timeFreq $timeTolerance \
-                    $beguinRangeRef $endRangeRef $rangeFreq \
-                    $rangeTolerance $radar $rangeOffSet $variable\
-		    $zeOffset
-done
-#-----------------------------
-echo Radar: $(tput setaf 3) $radar Done $(tput sgr 0)
+##--X band Radar setup---------
+##
+#radar='X'
+#rangeOffSet=-15.5
+#variables=('Ze' 'vd')
+#zeOffset=0 #dB
+#for variable in ${variables[@]}
+#do
+#python tripexL1.py $inputPath $outputPath $prefix $year $month \
+#                    $day $beguinTime $timeFreq $timeTolerance \
+#                    $beguinRangeRef $endRangeRef $rangeFreq \
+#                    $rangeTolerance $radar $rangeOffSet $variable\
+#		    $zeOffset
+#done
+##-----------------------------
+#echo Radar: $(tput setaf 3) $radar Done $(tput sgr 0)
 
 
-#--W band Radar setup---------
-#
-radar='W'
-rangeOffSet=0
-variables=('Ze' 'vm' 'sigma')
-zeOffset=0 #dB
-for variable in ${variables[@]}
-do
-python tripexL1.py $inputPath $outputPath $prefix $year $month \
-                    $day $beguinTime $timeFreq $timeTolerance \
-                    $beguinRangeRef $endRangeRef $rangeFreq \
-                    $rangeTolerance $radar $rangeOffSet $variable\
-		    $zeOffset
-done
-#-----------------------------
-echo Radar: $(tput setaf 3) $radar Done $(tput sgr 0)
+##--W band Radar setup---------
+##
+#radar='W'
+#rangeOffSet=0
+#variables=('Ze' 'vm' 'sigma')
+#zeOffset=0 #dB
+#for variable in ${variables[@]}
+#do
+#python tripexL1.py $inputPath $outputPath $prefix $year $month \
+#                    $day $beguinTime $timeFreq $timeTolerance \
+#                    $beguinRangeRef $endRangeRef $rangeFreq \
+#                    $rangeTolerance $radar $rangeOffSet $variable\
+#		    $zeOffset
+#done
+##-----------------------------
+#echo Radar: $(tput setaf 3) $radar Done $(tput sgr 0)
 
 
 #--Ka band Radar setup---------
 #
 radar='Ka'
-rangeOffSet=2
+rangeOffSet=2.2
 variables=('Ze' 'VELg' 'RMS' 'LDR')
 zeOffset=5 #dB
 for variable in ${variables[@]}

@@ -121,7 +121,7 @@ echo Radar: $(tput setaf 3) $radar Done $(tput sgr 0)
 radar='Ka'
 rangeOffSet=2.2
 variables=('Ze' 'VELg' 'RMS' 'LDR')
-zeOffset=0 #dB (MITEK correction)
+zeOffset=5 #dB (MITEK correction)
 for variable in ${variables[@]}
 do
 python tripexL1.py $inputPath $outputPath $prefix $year $month \
