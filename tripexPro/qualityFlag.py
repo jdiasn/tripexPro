@@ -99,7 +99,6 @@ def getLwpFlag(lwpFilePath, timeRef, colName,
 
     return finalFlagLwp
 
-
 #def getLwpFlag(cloudNetFilePath, timeRef, colName, 
                #year, month, day):
     
@@ -130,6 +129,24 @@ def getFlag(dataFrame, criteria):
    return dataFrameFlag
 
 
+def getVarianceFlag(dt1, dt2):
+    
+    aveWind = 15*2
+    variance =  (dt1 - dt2).rolling(aveWind, 
+                                    min_periods=aveWind - 2,
+				    center=True).var()
+    
+    varianceFlag = variance.copy()
+    varianceFlag[variance > 2] =1
+    varianceFlag[variance <= 2] =0
+    varianceFlag = varianceFlag.fillna(1)
+
+    varianceFlagFinal = np.array(varianceFlag.values, np.uint16) << 13
+    varianceFlagDF = pd.DataFrame(index=variance.index, columns=variance.columns,
+                                  data=varianceFlagFinal)
+
+    return(varianceFlagDF)
+
 
 def getUnifiedFlag(rainFlagDF, lwpFlagDF,
                    corrFlagDF, pointFlagDF):
@@ -145,6 +162,7 @@ def getUnifiedFlag(rainFlagDF, lwpFlagDF,
 
    pointFlag = pointFlagDF.loc[:,pointFlagDF.columns==100]
    pointFlag = np.array(pointFlag, np.uint16)<<15
+
 
    finalFlag = rainFlag + lwpFlag + corrFlag + pointFlag
 

@@ -293,24 +293,33 @@ lwpFlag = qFlag.getLwpFlag(hatproFileName, timeRef, 'lwpFlag',
 lwpFlagDF = offLib.getParamDF(lwpFlag['lwpFlag'], timeRef, rangeRef)
 
 
+
 #offset flag X band
 valPoinFlagXKaDF = qFlag.getFlag(validPointXKaDF, 300)
 corrFlagXKaDF = qFlag.getFlag(correlXKaDF, 0.70)
+
+varFlagXKaDF = qFlag.getVarianceFlag(dataFrameListAtt[varNames.index('Ze_X')],
+                                    dataFrameListAtt[varNames.index('Ze_Ka')])
 
 finalFlagXKa = qFlag.getUnifiedFlag(rainFlagDF, lwpFlagDF,
                                     corrFlagXKaDF, valPoinFlagXKaDF)
 
 finalFlagXKaDF = offLib.getParamDF(finalFlagXKa['flag'], timeRef, rangeRef) 
+finalFlagXKaDF = finalFlagXKaDF + varFlagXKaDF
 
 
 #offset flag W band
 valPoinFlagWKaDF = qFlag.getFlag(validPointWKaDF, 300)
 corrFlagWKaDF = qFlag.getFlag(correlWKaDF, 0.70)
 
+varFlagKaWDF = qFlag.getVarianceFlag(dataFrameListAtt[varNames.index('Ze_Ka')],
+                                    dataFrameListAtt[varNames.index('Ze_W')])
+
 finalFlagWKa = qFlag.getUnifiedFlag(rainFlagDF, lwpFlagDF,
                                     corrFlagWKaDF, valPoinFlagWKaDF)
 
-finalFlagWKaDF = offLib.getParamDF(finalFlagWKa['flag'], timeRef, rangeRef) 
+finalFlagWKaDF = offLib.getParamDF(finalFlagWKa['flag'], timeRef, rangeRef)
+finalFlagWKaDF = finalFlagWKaDF + varFlagKaWDF
 #-----------------------------
 
 
@@ -394,16 +403,16 @@ variableOutPut={'dbz_x':{'data':dataFrameListAtt[varNames.index('Ze_X')]},
                 'pia_w':{'data':interpAttDataList[varNames.index('Ze_W')]},
                 'offset_x':{'data':offsetXKaDF},
                 'offset_w':{'data':offsetWKaDF},
-                'valDat_x':{'data':validPointXKaDF},
-                'valDat_w':{'data':validPointWKaDF},
-                'correlation_X':{'data':correlXKaDF},
-                'correlation_W':{'data':correlWKaDF},
-                'corrFlag_x':{'data':corrFlagXKaDF},
-                'pointFlag_x':{'data':valPoinFlagXKaDF},
-                'corrFlag_w':{'data':corrFlagWKaDF},
-                'pointFlag_w':{'data':valPoinFlagWKaDF},
-		'rainFlag_x':{'data':rainFlagDF},
-		'lwpFlag_x':{'data':lwpFlagDF},
+               # 'valDat_x':{'data':validPointXKaDF},
+               # 'valDat_w':{'data':validPointWKaDF},
+               # 'correlation_X':{'data':correlXKaDF},
+               # 'correlation_W':{'data':correlWKaDF},
+               # 'corrFlag_x':{'data':corrFlagXKaDF},
+               # 'pointFlag_x':{'data':valPoinFlagXKaDF},
+               # 'corrFlag_w':{'data':corrFlagWKaDF},
+               # 'pointFlag_w':{'data':valPoinFlagWKaDF},
+	       # 'rainFlag_x':{'data':rainFlagDF},
+	       # 'lwpFlag_x':{'data':lwpFlagDF},
 	        'Pres_Cl':{'data':interpPressDF},	
                 'RelHum_Cl':{'data':interpRelHumDF},
  		'Temp_Cl':{'data':interpTempDF},

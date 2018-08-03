@@ -116,7 +116,7 @@ def variableAttribute(variable, varName, radar):
 
    elif varName == 'quality_flag_offset':
       long_name = 'quality flag indicating reliability of the offset correction for the {radar}-Band data'.format(radar=radar)
-      finalComment = 'Bits 0 to 5: empty; Bit 6: 0 if the liquid water path is less than 200 g m-2, 1 if the liquid water path is greater than 200 g m-2; Bit 7: 0 no rain, 1 rain; Bits 8 to 13: empty; Bit 14: 0 if offset correlation is greater than 0.7, 1 if offset correlation is less than 0.7; Bit 15: 0 if the number of points used to calculate the of offset is greater than 300, 1 if the number of points is less than 300. If Bit 14 or higher is set, we recommend not to use the calculated offsets but e.g. rather interpolate between time periods with high-quality offset estimates.'
+      finalComment = 'Bits 0 to 5: empty; Bit 6: 0 if the liquid water path is less than 200 g m-2, 1 if the liquid water path is greater than 200 g m-2; Bit 7: 0 no rain, 1 rain; Bits 8 to 12: empty; Bit 13: 0 if the variance is less than 2 dB 2, 1 if the variance is greater than 2 dB 2; Bit 14: 0 if offset correlation is greater than 0.7, 1 if offset correlation is less than 0.7; Bit 15: 0 if the number of points used to calculate the of offset is greater than 300, 1 if the number of points is less than 300. If Bit 14 or higher is set, we recommend not to use the calculated offsets but e.g. rather interpolate between time periods with high-quality offset estimates.'
       units = '1'
 
    try: 
