@@ -1,4 +1,5 @@
 import pandas as pd
+import xarray as xr
 import numpy as np
 from netCDF4 import Dataset
 import attenuationLib as attLib
@@ -129,11 +130,11 @@ def getFlag(dataFrame, criteria):
    return dataFrameFlag
 
 
-def getVarianceFlag(dt1, dt2):
+def getVarianceFlagOld(dt1, dt2):
     
     aveWind = 15*2
     variance =  (dt1 - dt2).rolling(aveWind, 
-                                    min_periods=aveWind - 2,
+                                    min_periods=aveWind-2,
 				    center=True).var()
     
     varianceFlag = variance.copy()
@@ -146,6 +147,32 @@ def getVarianceFlag(dt1, dt2):
                                   data=varianceFlagFinal)
 
     return(varianceFlagDF)
+
+
+def getVarianceFlag(dt1, dt2):
+
+    tempDS = xr.Dataset({'dt1':(['time', 'range'], dt1.values),
+                         'dt2':(['time', 'range'], dt2.values)},
+                         coords={'time':dt1.index,
+                         'range':np.array(dt1.columns.values,float)}
+                       )
+
+    dwr = tempDS['dt1']-tempDS['dt2']
+    var = dwr.rolling(time=30, min_periods=15, center=True).var()
+    var.values = var.fillna(3)
+
+    varFlag = var.copy()
+    varFlag.values[var.values>2] = 1
+    varFlag.values[var.values<=2] = 0
+    varFlag.values = varFlag.fillna(1)
+
+    varFlagFinal = np.array(varFlag.values, np.uint16) << 13
+    varFlagDF = pd.DataFrame(index=dt1.index, columns=dt1.columns,
+                             data=varFlagFinal)
+    
+    return(varFlagDF)
+
+
 
 
 def getUnifiedFlag(rainFlagDF, lwpFlagDF,
