@@ -25,19 +25,19 @@ def removeOutliersZeKa(dataFrameList, variable):
 
 def removeClutter(dataFrameList, variable, target, maxHeight):
 
-    tempDFZe_X = dataFrameList[variable.keys().index(target)]
+    tempDF = dataFrameList[variable.keys().index(target)]
 
-    for col in tempDFZe_X.columns[tempDFZe_X.columns < maxHeight]:
-        tempDFZe_X[col] = np.nan
+    for col in tempDF.columns[tempDF.columns < maxHeight]:
+        tempDF[col] = np.nan
     
-    dataFrameList[variable.keys().index(target)] = tempDFZe_X
+    dataFrameList[variable.keys().index(target)] = tempDF
     
     return dataFrameList
 
 
 def func(x,a,b):
     
-    return np.log(x*b)*a 
+    return np.log10(x*b)*a 
 
 def sensitivityFilter(dataFrameList, variable, target, sensPar):
 

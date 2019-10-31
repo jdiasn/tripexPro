@@ -8,15 +8,19 @@ inputCloudNetPath='/data/data_hatpro/jue/cloudnet/juelich/processed/categorize'
 prefixCloudNet='juelich_categorize.nc'
 
 #inputPathL1='/home/jdias/Projects/radarDataResampled/data'
-inputPathL1='/data/optimice/tripex/tripex_level_01'
+#inputPathL1='/data/optimice/tripex/tripex_level_01'
+inputPathL1='/data/optimice/tripex/tripex_level_01_X_pol'
+
 prefixL1='tripex_3fr_L1_mom'
 
 #outputPathL2='/work2/tripex/samd'
 #outputPathL2='/data/optimice/tripex/tripex_level_02_NOSENS'
 #outputPathL2='/data/optimice/tripex/tripex_level_02_samd'
-outputPathL2='/data/optimice/tripex/tripex_level_02_test'
-#outputPathL2='/data/optimice/tripex/testOffset'
-prefixL2='tripex_joy_tricr00_l1_any_v00'
+#outputPathL2='/data/optimice/tripex/tripex_level_02_test'
+#outputPathL2='/data/optimice/tripex/testOffset/tempData'
+#outputPathL2='/data/optimice/tripex/testOffset/newOffsetRegimeKa'
+outputPathL2='/data/optimice/tripex/tripex_level_02_X_pol'
+prefixL2='tripex_joy_tricr00_l2_any_v00'
 
 
 hatproPath='/data/hatpro/jue/data/level2'
@@ -103,7 +107,7 @@ zeKaMin=-11
 heightThreshold=5000
 timeWindowLenght=15
 pointsThreshold=300
-zeOffsetKa=3 #dB
+zeOffsetKa=3.6 #4dB from T-matrix calculation
 #-----------------------------
 
 #--Execution------------------

@@ -5,7 +5,9 @@
 #
 #--File Definition------------
 inputPath='/work/radarData'
-outputPath='/data/optimice/tripex/tripex_level_01'
+#outputPath='/data/optimice/tripex/tripex_level_01'
+outputPath='/data/optimice/tripex/tripex_level_01_X_pol'
+#outputPath='/work2/tripex/tripex_level_01_X_pol'
 prefix='tripex_3fr_L1_mom'
 #-----------------------------
 
@@ -35,7 +37,7 @@ if [ $month == '11' ]
 then
 days=('11' '12' '13' '14' '15' '16' '17' '18' '19' '20'\
       '21' '22' '23' '24' '25' '26' '27' '28' '29' '30')
-#days=('20') #test
+#days=('24') #test
 fi
 
 if [ $month == '12' ]
@@ -83,7 +85,7 @@ rangeTolerance=17
 #
 radar='X'
 rangeOffSet=-15.4
-variables=('Ze' 'vd' 'W')
+variables=('Ze' 'vd' 'W' 'ZDR' 'KDP' 'PhiDP' 'RhoHV')
 zeOffset=0
 for variable in ${variables[@]}
 do
@@ -120,7 +122,7 @@ echo Radar: $(tput setaf 3) $radar Done $(tput sgr 0)
 #
 radar='Ka'
 rangeOffSet=2.2
-variables=('Ze' 'VELg' 'RMS' 'LDR')
+variables=('Ze' 'VELg' 'RMS' 'LDRg')
 zeOffset=5 #dB (MITEK correction)
 for variable in ${variables[@]}
 do

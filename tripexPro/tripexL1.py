@@ -135,7 +135,7 @@ for radarFile in fileList:
    else:
       pass
 
-   if varFinalName == 'LDR' and radar == 'Ka':
+   if varFinalName == 'LDRg' and radar == 'Ka':
       var = 10*np.log10(var)
    else:
       pass
@@ -143,8 +143,18 @@ for radarFile in fileList:
 
    if radar == 'W':
       var[var==-999.] = np.nan 
+
    if radar == 'X' and varFinalName == 'Ze':
       var[var==-32] = np.nan
+ #  if radar == 'X' and varFinalName == 'ZDR':
+ #     var[var==-32] = np.nan
+ #  if radar == 'X' and varFinalName == 'KDP':
+ #     var[var==-32] = np.nan
+ #  if radar == 'X' and varFinalName == 'PhiDP':
+ #     var[var==-32] = np.nan
+ #  if radar == 'X' and varFinalName == 'RhoHV':
+ #     var[var==-32] = np.nan
+
 
    var = np.ma.masked_invalid(var)
    np.ma.set_fill_value(var, np.nan) 
@@ -204,8 +214,8 @@ try:
    var_resampled = writeData.createVariable(rootgrpOut, resampledTimeRange,
                                         varFinalName, varNameOutput, radar, 
                                         prefixL1, np.float32)
-
-except IOError:
+except:
+#except IOError:
    print 'No Data To Write :('
 
 rootgrpOut.close()

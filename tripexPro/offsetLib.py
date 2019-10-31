@@ -9,33 +9,37 @@ import pandas as pd
 def getDataFrameList(fileList, variableDic):
 
     dataFrameList = []
+    epoch = None	    
 
     varNames = variableDic.keys()
     for i, variable in enumerate(varNames):
         dataFrameList.append(pd.DataFrame())
+        #print variable
 
     for fileName in fileList:
     
-    #print fileName 
+	#print fileName 
         rootgrpRe = Dataset(fileName, 'r')
         times = rootgrpRe.variables['time'][:]
         ranges = rootgrpRe.variables['range'][:]
     
         epoch = trLib.getEpochTime(rootgrpRe, 'X')
         times = epoch+pd.to_timedelta(times, unit='s')
-    
+    	#print rootgrpRe.variables.keys()
+	#print epoch
         for i, variable in enumerate(varNames):
     
             try:
                 data = rootgrpRe.variables[variable][:]
 	        data = data + variableDic[variable]['offset']               
-
+	    
             except:
                 if variable == 'halt':
                     data = np.ones((len(times), len(ranges)))*ranges
                 else:
                     data = np.ones((len(times), len(ranges)))*np.nan
-               
+       		
+		        
             dataFrame = pd.DataFrame(data=data, columns=ranges, index=times)
             dataFrameList[i] = dataFrameList[i].append(dataFrame)
         
@@ -213,18 +217,24 @@ def temperatureMask(shiftedTempMaskDF, dataFrameListToMask,
 
 
 def getRangeBnds(rangeRef, rangeTolerance):
-    range_bnds = np.ones((len(rangeRef),2))
+#    range_bnds = np.ones((len(rangeRef),2))
+    range_bnds = np.ones((len(rangeRef),4))
     range_bnds[:,0:1] = (rangeRef - rangeTolerance).reshape(len(rangeRef),1)
-    range_bnds[:,1:2] = (rangeRef + rangeTolerance).reshape(len(rangeRef),1)
+    range_bnds[:,1:2] = (rangeRef - rangeTolerance).reshape(len(rangeRef),1)#
+    range_bnds[:,2:3] = (rangeRef + rangeTolerance).reshape(len(rangeRef),1)
+    range_bnds[:,3:4] = (rangeRef + rangeTolerance).reshape(len(rangeRef),1)#
 
     return range_bnds
 
 
 def getTimeBnds(timeRef, timeTolerance):
-
-    time_bnds = np.ones((len(timeRef),2))
+#    time_bnds = np.ones((len(timeRef),2))
+    time_bnds = np.ones((len(timeRef),4))
     time_bnds[:,0:1] = np.array(timeRef - pd.to_timedelta(2,'s'), float).reshape(len(timeRef),1)
     time_bnds[:,1:2] = np.array(timeRef + pd.to_timedelta(2,'s'), float).reshape(len(timeRef),1)
+    time_bnds[:,2:3] = np.array(timeRef + pd.to_timedelta(2,'s'), float).reshape(len(timeRef),1)
+    time_bnds[:,3:4] = np.array(timeRef - pd.to_timedelta(2,'s'), float).reshape(len(timeRef),1)
+
     time_bnds = time_bnds / 10**9
     
     return time_bnds

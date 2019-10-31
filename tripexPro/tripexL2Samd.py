@@ -174,6 +174,8 @@ dataFrameList = filt.removeOutliersZeKa(dataFrameList, variable)
 dataFrameList = filt.removeClutter(dataFrameList, variable, 'Ze_X', 700)
 #it removes the clutter from Ka band
 dataFrameList = filt.removeClutter(dataFrameList, variable, 'Ze_Ka', 400)
+#it removes the clutter from W band
+dataFrameList = filt.removeClutter(dataFrameList, variable, 'Ze_W', 370)
 
 
 shiftedTempDF = interpTempDF.copy()
@@ -235,7 +237,7 @@ parametersWKa= offLib.getOffset(dataFrame, dataFrameRef,
 parametersXKaTS = offLib.getParameterTimeSerie(parametersXKa, timeFreq)
 parametersWKaTS = offLib.getParameterTimeSerie(parametersWKa, timeFreq)
 
-###(I mutipled the offset by -1 )
+###(I mutipled the offset by -1 ) ( ## testing the offset)
 percentDfWKa = offLib.getParamDF(parametersWKaTS[5]*1, timeRef, rangeRef)
 offsetWKaDF = offLib.getParamDF(parametersWKaTS[0]*1, timeRef, rangeRef)
 validPointWKaDF = offLib.getParamDF(parametersWKaTS[2]*1, timeRef, rangeRef)
@@ -260,22 +262,29 @@ dataFrameListAtt[varNames.index('Ze_X')] = \
 
 #-----------------------------
 
+#the sensitivity filter was deactivated after because it 
+#the quality flags gives a better result 
 # ---> replace the ln equation to log10 equation and coefficients 
 #Sensitivity threshold--------
-sensParam = {'x':{'a':1.05258702e+01, 'b':4.76220165e-05},
-             'ka':{'a':8.87812466e+00, 'b':1.51414427e-06},
-             'w':{'a':5.76194550e+00, 'b':1.70653858e-07},
-            }
+#sensParam = {'x':{'a':2.20442085e+01, 'b':6.68034993e-05},
+#	     'ka':{'a':2.05036407e+01, 'b':3.02177078e-06},
+#             'w':{'a':1.53829088e+01, 'b':1.25574808e-06},
+#	    }
+
+#sensParam = {'x':{'a':2.19838341e+01, 'b':7.13026702e-05},
+#             'ka':{'a':2.05355423e+01, 'b':3.25989869e-06},
+#             'w':{'a':1.53829088e+01, 'b':1.25574808e-06},
+#            }
 
 #or dataFrameListAtt it should be att
-dataFrameListAtt = filt.sensitivityFilter(dataFrameListAtt, variable,
-                                       'Ze_X', sensParam['x'])
-
-dataFrameListAtt = filt.sensitivityFilter(dataFrameListAtt, variable,
-                                       'Ze_Ka', sensParam['ka'])
-
-dataFrameListAtt = filt.sensitivityFilter(dataFrameListAtt, variable,
-                                       'Ze_W', sensParam['w'])
+#dataFrameListAtt = filt.sensitivityFilter(dataFrameListAtt, variable,
+#                                       'Ze_X', sensParam['x'])
+#
+#dataFrameListAtt = filt.sensitivityFilter(dataFrameListAtt, variable,
+#                                       'Ze_Ka', sensParam['ka'])
+#
+#dataFrameListAtt = filt.sensitivityFilter(dataFrameListAtt, variable,
+#                                       'Ze_W', sensParam['w'])
 #-----------------------------
 
 
@@ -360,20 +369,35 @@ variableToCopy={'v_X':{'data':data, 'offset':0, 'outName':'rv_x'},
                 'SW_X':{'data':data, 'offset':0, 'outName':'sw_x'},
                 'SW_Ka':{'data':data, 'offset':0, 'outName':'sw_ka'},
                 'SW_W':{'data':data, 'offset':0, 'outName':'sw_w'},
-                'LDR_Ka':{'data':data, 'offset':0, 'outName':'ldr_ka'},
-                }
+                'LDRg_Ka':{'data':data, 'offset':0, 'outName':'ldr_ka'},
+		#'KDP_X':{'data':data, 'offset':0, 'outName':'kdp_x'},
+		'PhiDP_X':{'data':data, 'offset':0, 'outName':'phidp_x'},
+		'RhoHV_X':{'data':data, 'offset':0, 'outName':'rhohv_x'},
+		'ZDR_X':{'data':data, 'offset':0, 'outName':'zdr_x'},
+ 		 }
 
 dataCopiedDFList, epoch = offLib.getDataFrameList(fileList, 
                                                   variableToCopy)
-
+print epoch	
 #it removes the clutter from X band
 dataFrameList = filt.removeClutter(dataCopiedDFList, variableToCopy, 'v_X', 700)
 dataFrameList = filt.removeClutter(dataCopiedDFList, variableToCopy, 'SW_X', 700)
 
+#dataFrameList = filt.removeClutter(dataCopiedDFList, variableToCopy, 'KDP_X', 700)
+dataFrameList = filt.removeClutter(dataCopiedDFList, variableToCopy, 'PhiDP_X', 700)
+dataFrameList = filt.removeClutter(dataCopiedDFList, variableToCopy, 'RhoHV_X', 700)
+dataFrameList = filt.removeClutter(dataCopiedDFList, variableToCopy, 'ZDR_X', 700)
+
 #it removes the clutter from Ka band
 dataFrameList = filt.removeClutter(dataCopiedDFList, variableToCopy, 'v_Ka', 400)
 dataFrameList = filt.removeClutter(dataCopiedDFList, variableToCopy, 'SW_Ka', 400)
-dataFrameList = filt.removeClutter(dataCopiedDFList, variableToCopy, 'LDR_Ka', 400)
+dataFrameList = filt.removeClutter(dataCopiedDFList, variableToCopy, 'LDRg_Ka', 400)
+
+
+#it removes the clutter from W band
+dataFrameList = filt.removeClutter(dataCopiedDFList, variableToCopy, 'v_W', 370)
+dataFrameList = filt.removeClutter(dataCopiedDFList, variableToCopy, 'SW_W', 370)
+
 
 variableToCopyTemp={}
 for variable in variableToCopy.keys():
@@ -392,7 +416,7 @@ variableToCopy = variableToCopyTemp
 
 #-----------------------------
 
-
+#from IPython.core.debugger import Tracer ; Tracer()()
 #--Write data-----------------
 
 variableOutPut={'dbz_x':{'data':dataFrameListAtt[varNames.index('Ze_X')]},
@@ -413,9 +437,9 @@ variableOutPut={'dbz_x':{'data':dataFrameListAtt[varNames.index('Ze_X')]},
                # 'pointFlag_w':{'data':valPoinFlagWKaDF},
 	       # 'rainFlag_x':{'data':rainFlagDF},
 	       # 'lwpFlag_x':{'data':lwpFlagDF},
-	        'Pres_Cl':{'data':interpPressDF},	
-                'RelHum_Cl':{'data':interpRelHumDF},
- 		'Temp_Cl':{'data':interpTempDF},
+	        'pa':{'data':interpPressDF},	
+                'hur':{'data':interpRelHumDF},
+ 	        'ta':{'data':interpTempDF},
 		'quality_flag_offset_x':{'data':finalFlagXKaDF},
 		'quality_flag_offset_w':{'data':finalFlagWKaDF},
               }
@@ -503,6 +527,20 @@ for varNameOut in sorted(variableToCopy.keys()):
         variableToCopy['rv_ka']['data'] = \
                 filt.removeVelNoiseKa(variableOutPut['dbz_ka']['data'],
                                       variableToCopy['rv_ka']['data'])
+
+    elif (varNameOut == 'kdp_x') or (varNameOut == 'phidp_x')\
+        or (varNameOut == 'rhohv_x') or (varNameOut == 'zdr_x'):
+
+        variableToCopy[varNameOut]['data'] = \
+                filt.removeVelNoiseKa(variableToCopy['rv_x']['data'],
+                                      variableToCopy[varNameOut]['data'])
+                #filt.removeVelNoiseKa(variableOutPut['rv_x']['data'],
+                 #                     variableToCopy[varNameOut]['data'])
+
+
+
+    else:
+        pass
     #-------------------------------       
 
 

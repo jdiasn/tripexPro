@@ -12,7 +12,7 @@ def defineAttr(prefix):
    elif prefix == 'tripex_3fr_L2_mom':
       dataAttribute = dataAttributeL2 
 
-   elif prefix == 'tripex_joy_tricr00_l1_any_v00':
+   elif prefix == 'tripex_joy_tricr00_l2_any_v00':
       dataAttribute = dataAttributeL2Samd
 
    return dataAttribute
@@ -36,9 +36,11 @@ def createNvDimension(rootgrpOut, prefix):
    dataAttribute = defineAttr(prefix)
    
    try:
-      rootgrpOut.createDimension('nv',2)
+      #rootgrpOut.createDimension('nv',2)
+      rootgrpOut.createDimension('nv',4)
       nv = rootgrpOut.createVariable('nv',np.float32,('nv',))
-      nv[:] = np.array([0,1])
+      #nv[:] = np.array([0,1])
+      nv[:] = np.array([0,1,2,3])
       return nv
     
    except:
