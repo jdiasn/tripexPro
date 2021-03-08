@@ -1,6 +1,6 @@
 #-----------------------------
 #Shell script to control the
-#resample process 
+#resampling process
 #
 #--File Definition------------
 inputPath='/home/jdias/Projects/radarData'
