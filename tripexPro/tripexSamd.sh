@@ -1,6 +1,6 @@
 #-----------------------------
 #Shell script to control the
-#resample process for entire 
+#resampling process for entire
 #data set 
 #
 #--File Definition------------
